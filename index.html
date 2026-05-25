@@ -1,5 +1,4 @@
-\Мы полностью обновили интерфейс: исправили иконки валют, добавили активацию промокодов в личный кабинет, статистику времени в игре, кнопки поддержки и группы. Админ-панель получила расширенное управление: выбор валюты для выдачи, полноценный просмотр статистики по ID (шахтёры, доход, рефералы, время в игре), а также создание промокодов для всех 4 валют.
-```html
+mide
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -299,12 +298,17 @@
             font-weight: bold;
             display: inline-block;
         }
-        /* Админка */
+        /* Админка - улучшенный дизайн, сетка */
+        .admin-panel-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
         .admin-block {
             background: #1f0f38;
             padding: 20px;
             border-radius: 36px;
-            margin-bottom: 20px;
+            margin-bottom: 0;
         }
         .admin-input-group {
             display: flex;
@@ -322,6 +326,16 @@
             padding: 10px 16px;
             border-radius: 40px;
             color: white;
+        }
+        .promo-item {
+            background: #2c1952;
+            border-radius: 28px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
         .toast {
             position: fixed;
@@ -347,6 +361,14 @@
             margin-top: 20px;
             opacity: 0.7;
         }
+        .quest-link-btn {
+            background: #4c3599;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -355,7 +377,7 @@
     <div class="currency-panel">
         <div class="currency-card"><span class="currency-emoji">💎</span><div><span class="currency-value" id="diamondsVal">0</span><div class="currency-label">Алмазы</div></div></div>
         <div class="currency-card"><span class="currency-emoji">🛢️</span><div><span class="currency-value" id="oilVal">0</span><div class="currency-label">Нефть</div></div></div>
-        <div class="currency-card"><span class="currency-emoji">💰</span><div><span class="currency-value" id="goldVal">0</span><div class="currency-label">Золото</div></div></div>
+        <div class="currency-card"><span class="currency-emoji">🪙</span><div><span class="currency-value" id="goldVal">0</span><div class="currency-label">Золото</div></div></div>
         <div class="currency-card"><span class="currency-emoji">💵</span><div><span class="currency-value" id="bucksVal">0</span><div class="currency-label">Баксы (донат)</div></div></div>
     </div>
 
@@ -392,10 +414,10 @@
         <div id="shopContent" class="shop-items"></div>
     </div>
 
-    <!-- Задания -->
+    <!-- Задания (добавлены задания-ссылки) -->
     <div id="questsSection" class="section hidden"><div class="section-title">🎯 Задания</div><div id="questsContainer"></div></div>
 
-    <!-- Личный кабинет + реф + промокод + поддержка -->
+    <!-- Личный кабинет -->
     <div id="profileSection" class="section hidden">
         <div class="section-title">👤 Личный кабинет</div>
         <div class="profile-stats-grid" id="profileStats"></div>
@@ -406,19 +428,24 @@
         <div class="stat-card" style="margin-top:12px;">⏱️ Время в игре: <span id="playtimeSpan">0</span> секунд</div>
     </div>
 
-    <!-- Админ панель -->
+    <!-- Админ панель (расширенная, с промокодами и статистикой) -->
     <div id="adminSection" class="section hidden">
         <div class="section-title">🔐 Админ-панель</div>
         <input type="password" id="adminPassInput" placeholder="Пароль" class="admin-input"><button id="adminLoginBtn">Войти</button>
         <div id="adminTools" style="display:none; margin-top: 20px;">
-            <div class="admin-block"><h3>👤 Управление пользователем (ID)</h3><div class="admin-input-group"><input type="text" id="targetUserId" placeholder="ID пользователя"><button id="blockUserBtn">Заблокировать</button><button id="unblockUserBtn">Разблокировать</button></div>
-            <div class="admin-input-group"><select id="rewardCurrencySelect"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="rewardAmount" placeholder="Количество"><button id="giveCustomRewardBtn">Выдать награду</button><button id="viewStatsByIdBtn">📊 Статистика по ID</button></div>
-            <div id="adminStatsResult" style="background:#150b2a; padding:12px; border-radius:28px; margin-top:10px;"></div></div>
-            <div class="admin-block"><h3>📝 Создать задание</h3><input type="text" id="newQuestDesc" placeholder="Описание" class="admin-input"><select id="newQuestType"><option value="diamonds_mined">Добыть алмазов</option><option value="miners_bought">Купить шахтёров</option></select><input type="number" id="newQuestReq" placeholder="Требование"><button id="createQuestBtn">Создать</button></div>
-            <div class="admin-block"><h3>🎁 Промокод (4 валюты)</h3><input type="text" id="promoCodeName" placeholder="Код"><select id="promoRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="promoRewardAmount" placeholder="Кол-во"><button id="createPromoBtn">Создать промокод</button></div>
+            <div class="admin-panel-grid">
+                <div class="admin-block"><h3>👤 Управление пользователем</h3><div class="admin-input-group"><input type="text" id="targetUserId" placeholder="ID пользователя"><button id="blockUserBtn">Заблокировать</button><button id="unblockUserBtn">Разблокировать</button></div>
+                <div class="admin-input-group"><select id="rewardCurrencySelect"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="rewardAmount" placeholder="Количество"><button id="giveCustomRewardBtn">Выдать награду</button><button id="viewStatsByIdBtn">📊 Статистика по ID</button></div>
+                <div id="adminStatsResult" style="background:#150b2a; padding:12px; border-radius:28px; margin-top:10px;"></div></div>
+
+                <div class="admin-block"><h3>📝 Задание-ссылка (переход и возврат)</h3><div class="admin-input-group"><input type="text" id="linkQuestDesc" placeholder="Описание задания" class="admin-input"><input type="text" id="linkQuestUrl" placeholder="Ссылка для перехода" class="admin-input"></div><div class="admin-input-group"><select id="linkQuestRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="linkQuestRewardAmount" placeholder="Кол-во награды"><button id="createLinkQuestBtn">➕ Создать задание-ссылку</button></div><div id="linkQuestsList" style="margin-top:12px;"></div></div>
+
+                <div class="admin-block"><h3>🎁 Промокоды (4 валюты + лимит)</h3><div class="admin-input-group"><input type="text" id="promoCodeName" placeholder="Код"><select id="promoRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="promoRewardAmount" placeholder="Кол-во"><input type="number" id="promoMaxUses" placeholder="Лимит активаций"><button id="createPromoBtn">Создать промокод</button></div>
+                <div id="promoCodesList" style="margin-top: 12px;"></div></div>
+            </div>
         </div>
     </div>
-    <footer>⚡ Неограниченный найм • Реферальная система • Админ-панель</footer>
+    <footer>⚡ Неограниченный найм • Реф. система + задания-ссылки • Админ панель</footer>
 </div>
 
 <script>
@@ -435,11 +462,13 @@
     let resources = { diamonds: 1200, oil: 60, gold: 6000, bucks: 3 };
     let minersCount = new Array(7).fill(0);
     let totalMined = 0, totalMinersPurchased = 0, totalExchangeDiamonds = 0, totalBucksSpentOnShop = 0;
-    let blockedUsers = [], promoCodes = [], customQuests = [];
+    let blockedUsers = [], promoCodes = [];  // промокоды {code, type, amount, maxUses, usedCount, active}
+    let customQuests = [];   // для простых заданий
+    let linkQuests = [];      // { id, desc, url, rewardType, rewardAmount, completed: false }
     let myUserId = "master_miner_001";
     let currentUser = { id: myUserId, refBy: null, refEarnings: 0, referrals: [], joinTime: Date.now() };
     let isBlocked = false;
-    let allUsers = {}; // хранилище пользователей по id
+    let allUsers = {};
 
     // квестовые шаблоны (10 уровней)
     let questTemplates = {
@@ -449,9 +478,9 @@
     };
     let premiumQuests = [ { name: "Премиум: Траты баксов", baseReq: 1, multiplier: 1.5, currentLevel: 0, claimedLevels: [], rewardGoldBase: 400, type:"bucks_spent" } ];
 
-    // Сохранение / загрузка + инициализация пользователей
+    // Сохранение / загрузка
     function saveGame() {
-        let data = { resources, minersCount, totalMined, totalMinersPurchased, totalExchangeDiamonds, totalBucksSpentOnShop, questTemplates, premiumQuests, customQuests, promoCodes, currentUser, blockedUsers, allUsers };
+        let data = { resources, minersCount, totalMined, totalMinersPurchased, totalExchangeDiamonds, totalBucksSpentOnShop, questTemplates, premiumQuests, customQuests, linkQuests, promoCodes, currentUser, blockedUsers, allUsers };
         localStorage.setItem('minerEmpireFull', JSON.stringify(data));
     }
     function loadGame() {
@@ -462,7 +491,7 @@
                 resources = d.resources; minersCount = d.minersCount; totalMined = d.totalMined; totalMinersPurchased = d.totalMinersPurchased;
                 totalExchangeDiamonds = d.totalExchangeDiamonds; totalBucksSpentOnShop = d.totalBucksSpentOnShop;
                 questTemplates = d.questTemplates; premiumQuests = d.premiumQuests; customQuests = d.customQuests || [];
-                promoCodes = d.promoCodes || []; currentUser = d.currentUser; blockedUsers = d.blockedUsers || [];
+                linkQuests = d.linkQuests || []; promoCodes = d.promoCodes || []; currentUser = d.currentUser; blockedUsers = d.blockedUsers || [];
                 allUsers = d.allUsers || {};
             } catch(e) {}
         }
@@ -470,10 +499,11 @@
         if(!currentUser.joinTime) currentUser.joinTime = Date.now();
         if(!allUsers[myUserId]) allUsers[myUserId] = currentUser;
         updateUI();
+        checkPendingLinkQuest(); // при загрузке проверяем, не вернулись ли с задания
     }
     function getPlaytimeSeconds() { return Math.floor((Date.now() - (currentUser.joinTime||Date.now())) / 1000); }
 
-    // обновление квестов
+    // Обновление квестов (прогресс)
     function updateQuestsByType(type, value) {
         let allQ = [...Object.values(questTemplates), ...premiumQuests, ...customQuests];
         for(let q of allQ) {
@@ -516,11 +546,81 @@
         else showToast("Не хватает валюты");
     }
 
-    // Рефералы + время
+    // Рефералы
     function generateRefLink() { return window.location.origin+window.location.pathname+"?ref="+myUserId; }
     function processRef() { let params=new URLSearchParams(location.search); let refId=params.get('ref'); if(refId && refId!==myUserId && !currentUser.refBy) { currentUser.refBy=refId; if(allUsers[refId]) { if(!allUsers[refId].referrals.includes(myUserId)) allUsers[refId].referrals.push(myUserId); resources.gold+=5000; showToast("+5000 золота за переход!"); } saveGame(); updateUI(); } }
 
-    // Админ: выдача валюты, статистика по ID
+    // Задания-ссылки: создание, выполнение, проверка возврата
+    function createLinkQuest(desc, url, rewardType, rewardAmount) {
+        let id = Date.now();
+        linkQuests.push({ id, desc, url, rewardType, rewardAmount, completed: false });
+        saveGame();
+        renderLinkQuests();
+        showToast("Задание-ссылка создано");
+    }
+    function renderLinkQuests() {
+        let container = document.getElementById('linkQuestsList');
+        if(!container) return;
+        container.innerHTML = linkQuests.map(q => `<div class="promo-item"><span>🔗 ${q.desc} → ${q.url}</span><span>Награда: ${q.rewardAmount} ${q.rewardType}</span><button class="max-btn" data-linkid="${q.id}" style="background:#d45353;">Удалить</button></div>`).join('');
+        document.querySelectorAll('[data-linkid]').forEach(btn => {
+            btn.addEventListener('click', () => { linkQuests = linkQuests.filter(l => l.id != btn.dataset.linkid); saveGame(); renderLinkQuests(); });
+        });
+    }
+    // Проверка при возврате в игру (по localStorage флагу)
+    function startLinkQuest(questId) {
+        let quest = linkQuests.find(q => q.id == questId);
+        if(quest && !quest.completed) {
+            localStorage.setItem('pendingLinkQuest', JSON.stringify({ id: quest.id, startTime: Date.now() }));
+            window.open(quest.url, '_blank');
+        } else showToast("Задание уже выполнено");
+    }
+    function checkPendingLinkQuest() {
+        let pending = localStorage.getItem('pendingLinkQuest');
+        if(pending) {
+            let data = JSON.parse(pending);
+            let quest = linkQuests.find(q => q.id == data.id);
+            if(quest && !quest.completed && (Date.now() - data.startTime) > 3000) { // защита от мгновенного возврата
+                // выдаём награду
+                let rewardType = quest.rewardType, amount = quest.rewardAmount;
+                if(rewardType === 'gold') resources.gold += amount;
+                else if(rewardType === 'diamonds') resources.diamonds += amount;
+                else if(rewardType === 'oil') resources.oil += amount;
+                else if(rewardType === 'bucks') resources.bucks += amount;
+                quest.completed = true;
+                showToast(`✅ Задание выполнено! Получено ${amount} ${rewardType}`);
+                saveGame(); updateUI();
+            }
+            localStorage.removeItem('pendingLinkQuest');
+        }
+    }
+
+    // Промокоды с лимитом, статистикой, деактивацией
+    function createPromo(code, type, amount, maxUses) {
+        promoCodes.push({ code, type, amount, maxUses: maxUses || 1, usedCount: 0, active: true });
+        saveGame(); renderPromoCodes(); showToast(`Промокод ${code} создан`);
+    }
+    function activatePromo(code) {
+        let promo = promoCodes.find(p => p.code === code && p.active);
+        if(promo && promo.usedCount < promo.maxUses) {
+            promo.usedCount++;
+            if(promo.type === 'gold') resources.gold += promo.amount;
+            else if(promo.type === 'diamonds') resources.diamonds += promo.amount;
+            else if(promo.type === 'oil') resources.oil += promo.amount;
+            else if(promo.type === 'bucks') resources.bucks += promo.amount;
+            showToast(`Промокод активирован! +${promo.amount} ${promo.type}`);
+            if(promo.usedCount >= promo.maxUses) promo.active = false;
+            saveGame(); updateUI(); renderPromoCodes();
+        } else showToast("Неверный или исчерпанный промокод");
+    }
+    function deactivatePromo(code) { let p = promoCodes.find(p=>p.code===code); if(p) p.active=false; saveGame(); renderPromoCodes(); }
+    function renderPromoCodes() {
+        let container = document.getElementById('promoCodesList');
+        if(!container) return;
+        container.innerHTML = promoCodes.map(p => `<div class="promo-item"><span>📢 ${p.code} | ${p.type} ${p.amount} | Лимит: ${p.usedCount}/${p.maxUses} | ${p.active ? '✅ Активен' : '❌ Неактивен'}</span><button class="max-btn" data-promocode="${p.code}" style="background:#a53030;">Закрыть</button></div>`).join('');
+        document.querySelectorAll('[data-promocode]').forEach(btn => { btn.addEventListener('click',()=>{ deactivatePromo(btn.dataset.promocode); }); });
+    }
+
+    // Админ функции
     function giveRewardToUser(uid, currency, amount) {
         if(uid===myUserId) { if(currency==='gold') resources.gold+=amount; else if(currency==='diamonds') resources.diamonds+=amount; else if(currency==='oil') resources.oil+=amount; else if(currency==='bucks') resources.bucks+=amount; showToast(`Выдано ${amount} ${currency}`); saveGame(); updateUI(); }
         else showToast(`Симуляция: +${amount} ${currency} игроку ${uid}`);
@@ -536,11 +636,8 @@
         document.getElementById('adminStatsResult').innerHTML = html;
     }
 
-    // Промокоды
-    function createPromo(code,type,amt) { promoCodes.push({code,type,amt}); saveGame(); showToast(`Промокод ${code} создан`); }
-    function activatePromo(code) { let promo = promoCodes.find(p=>p.code===code); if(promo) { let t=promo.type, a=promo.amt; if(t==='gold') resources.gold+=a; else if(t==='diamonds') resources.diamonds+=a; else if(t==='oil') resources.oil+=a; else if(t==='bucks') resources.bucks+=a; promoCodes=promoCodes.filter(p=>p!==promo); saveGame(); updateUI(); showToast(`Промокод активирован! +${a} ${t}`); } else showToast("Неверный код"); }
-
     // Отрисовка UI
+    let currentShopTab = "normal";
     function updateUI() {
         document.getElementById('diamondsVal').innerText = Math.floor(resources.diamonds);
         document.getElementById('oilVal').innerText = Math.floor(resources.oil);
@@ -550,10 +647,9 @@
         renderMiners(); renderShop(currentShopTab); renderQuests(); renderProfile();
         document.getElementById('playtimeSpan').innerText = getPlaytimeSeconds();
     }
-    let currentShopTab = "normal";
     function renderMiners() { let cont=document.getElementById('minersGrid'); if(!cont) return; cont.innerHTML=''; for(let i=0;i<7;i++){ let m=minersData[i]; let div=document.createElement('div'); div.className='miner-card'; div.innerHTML=`<div><b>${m.name}</b> lvl${m.level}</div><div>⚡ ${m.prodSec.toFixed(5)}/сек</div><div>🪙 ${m.costGold}</div><div>Кол-во: ${minersCount[i]}</div><div class="buy-group"><button class="buy-btn" data-lvl="${i}" data-qty="1">+1</button><button class="buy-btn" data-lvl="${i}" data-qty="10">+10</button></div>`; cont.appendChild(div); } document.querySelectorAll('.buy-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let lvl=parseInt(btn.dataset.lvl); let qty=parseInt(btn.dataset.qty); buyMiner(lvl,qty); }); }); }
     function renderShop(tab) { let container=document.getElementById('shopContent'); let items=shopData[tab]; if(!items) return; container.innerHTML=items.map(item=>`<div class="shop-item"><h3>${item.name}</h3><p>${item.desc}</p><p>Цена: ${item.priceBucks?item.priceBucks+'💵':item.priceGold?item.priceGold+'🪙':item.priceOil?item.priceOil+'🛢️':''}</p><button class="shop-buy" data-item='${JSON.stringify(item)}' data-tab="${tab}">Купить</button></div>`).join(''); document.querySelectorAll('.shop-buy').forEach(btn=>{ btn.addEventListener('click',()=>{ let it=JSON.parse(btn.dataset.item); buyShopItem(it,btn.dataset.tab); }); }); }
-    function renderQuests() { let cont=document.getElementById('questsContainer'); if(!cont) return; let html=`<div class="quest-category"><h3>✨ Премиум задания</h3><div class="quest-levels">`; for(let q of premiumQuests) html+=getQuestHtml(q); html+=`</div></div><div class="quest-category"><h3>📖 Сюжетные задания</h3><div class="quest-levels">`; for(let q of Object.values(questTemplates)) html+=getQuestHtml(q); if(customQuests.length) html+=`<div class="quest-category"><h3>⚡ Событийные</h3><div class="quest-levels">`+customQuests.map(q=>getQuestHtml(q)).join('')+`</div></div>`; cont.innerHTML=html; function getQuestHtml(q){ let need=Math.floor(q.baseReq*Math.pow(q.multiplier, q.currentLevel)); let progress=(q.type==='diamonds_mined')?totalMined:(q.type==='miners_bought')?totalMinersPurchased:(q.type==='exchange_diamonds')?totalExchangeDiamonds:(q.type==='bucks_spent')?totalBucksSpentOnShop:(q.customProgress||0); let completed=q.claimedLevels?.length||0; return `<div class="quest-line"><div><b>${q.name}</b> (${completed}/10)<br>${progress}/${need}<progress value="${progress}" max="${need}"></progress></div><div>${q.currentLevel<10?`+${q.rewardGoldBase*(q.currentLevel+1)}🪙`:'✅ завершено'}</div></div>`; } }
+    function renderQuests() { let cont=document.getElementById('questsContainer'); if(!cont) return; let html=`<div class="quest-category"><h3>✨ Премиум задания</h3><div class="quest-levels">`; for(let q of premiumQuests) html+=getQuestHtml(q); html+=`</div></div><div class="quest-category"><h3>📖 Сюжетные задания</h3><div class="quest-levels">`; for(let q of Object.values(questTemplates)) html+=getQuestHtml(q); if(customQuests.length) html+=`<div class="quest-category"><h3>⚡ Событийные</h3><div class="quest-levels">`+customQuests.map(q=>getQuestHtml(q)).join('')+`</div></div>`; html+=`<div class="quest-category"><h3>🔗 Задания-ссылки</h3><div class="quest-levels">`+linkQuests.map(q=>`<div class="quest-line"><div><b>${q.desc}</b><br>Перейти по ссылке и вернуться</div><button class="quest-link-btn" data-linkid="${q.id}">Выполнить</button></div>`).join('')+`</div></div>`; cont.innerHTML=html; document.querySelectorAll('.quest-link-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.linkid); startLinkQuest(id); }); }); function getQuestHtml(q){ let need=Math.floor(q.baseReq*Math.pow(q.multiplier, q.currentLevel)); let progress=(q.type==='diamonds_mined')?totalMined:(q.type==='miners_bought')?totalMinersPurchased:(q.type==='exchange_diamonds')?totalExchangeDiamonds:(q.type==='bucks_spent')?totalBucksSpentOnShop:(q.customProgress||0); let completed=q.claimedLevels?.length||0; return `<div class="quest-line"><div><b>${q.name}</b> (${completed}/10)<br>${progress}/${need}<progress value="${progress}" max="${need}"></progress></div><div>${q.currentLevel<10?`+${q.rewardGoldBase*(q.currentLevel+1)}🪙`:'✅ завершено'}</div></div>`; } }
     function renderProfile() { document.getElementById('profileStats').innerHTML = `<div class="stat-card">🆔 ID: ${myUserId}</div><div class="stat-card">⛏️ Всего шахтёров: ${minersCount.reduce((a,b)=>a+b,0)}</div><div class="stat-card">💎 Добыто алмазов: ${Math.floor(totalMined)}</div><div class="stat-card">🎁 Реф. заработок: ${currentUser.refEarnings.toFixed(2)} баксов</div>`; document.getElementById('refLinkInput').value=generateRefLink(); document.getElementById('refStatText').innerText = `Приглашено: ${currentUser.referrals.length} | Бонус 5% от трат: ${currentUser.refEarnings.toFixed(2)}💵`; document.getElementById('referralsList').innerHTML = currentUser.referrals.map(id=>`<div>👤 ${id}</div>`).join(''); }
 
     // Инициализация событий
@@ -569,14 +665,14 @@
         document.getElementById('unblockUserBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; blockedUsers=blockedUsers.filter(u=>u!==uid); if(uid===myUserId) isBlocked=false; saveGame(); showToast(`Разблокирован ${uid}`); };
         document.getElementById('giveCustomRewardBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; let cur=document.getElementById('rewardCurrencySelect').value; let amt=parseInt(document.getElementById('rewardAmount').value)||0; giveRewardToUser(uid,cur,amt); };
         document.getElementById('viewStatsByIdBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; if(uid) showUserStats(uid); else showToast("Введите ID"); };
-        document.getElementById('createPromoBtn').onclick=()=>{ let code=document.getElementById('promoCodeName').value; let type=document.getElementById('promoRewardType').value; let amt=parseInt(document.getElementById('promoRewardAmount').value); if(code&&amt) createPromo(code,type,amt); };
-        document.getElementById('createQuestBtn').onclick=()=>{ let desc=document.getElementById('newQuestDesc').value; let type=document.getElementById('newQuestType').value; let req=parseInt(document.getElementById('newQuestReq').value); if(desc&&req) { customQuests.push({ name: desc, baseReq: req, multiplier:1, currentLevel:0, claimedLevels:[], rewardGoldBase:150, type:type, customProgress:0 }); saveGame(); showToast("Задание создано"); updateUI(); } };
+        document.getElementById('createPromoBtn').onclick=()=>{ let code=document.getElementById('promoCodeName').value; let type=document.getElementById('promoRewardType').value; let amt=parseInt(document.getElementById('promoRewardAmount').value); let maxUses=parseInt(document.getElementById('promoMaxUses').value)||1; if(code&&amt) createPromo(code,type,amt,maxUses); };
+        document.getElementById('createLinkQuestBtn').onclick=()=>{ let desc=document.getElementById('linkQuestDesc').value; let url=document.getElementById('linkQuestUrl').value; let rewardType=document.getElementById('linkQuestRewardType').value; let amount=parseInt(document.getElementById('linkQuestRewardAmount').value); if(desc&&url&&amount) createLinkQuest(desc,url,rewardType,amount); };
         document.querySelectorAll('.nav-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden')); document.getElementById(btn.dataset.section+'Section').classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }); });
         document.querySelectorAll('.shop-tab').forEach(tab=>{ tab.addEventListener('click',()=>{ document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentShopTab=tab.dataset.tab; renderShop(currentShopTab); }); });
     }
     function showToast(msg) { let t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2000); }
     setInterval(()=>{ if(!isBlocked) { let prod=totalProduction(); if(prod>0) { resources.diamonds+=prod; totalMined+=prod; updateQuestsByType('diamonds_mined', prod); saveGame(); updateUI(); } } }, 1000);
-    loadGame(); bindEvents(); processRef(); setInterval(saveGame,5000);
+    loadGame(); bindEvents(); processRef(); setInterval(saveGame,5000); renderPromoCodes(); renderLinkQuests();
 </script>
 </body>
 </html>
