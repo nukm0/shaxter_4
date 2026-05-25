@@ -1,5 +1,3 @@
-Вот полностью переработанная версия игры с исправленным отображением всех значков валют (золото теперь везде 🪙), улучшенным адаптивным дизайном админ-панели, заданиями-ссылками (переход и награда при возврате), расширенными промокодами (лимит активаций, статистика, деактивация) и красивыми кнопками.
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -15,7 +13,6 @@
         }
 
         body {
-            min-height: 100vh;
             background: linear-gradient(135deg, #170a2e, #3b1c68, #7e42c9);
             background-attachment: fixed;
             padding: 20px;
@@ -27,7 +24,7 @@
             margin: 0 auto;
         }
 
-        /* Валютная панель */
+        /* Валютная панель — без квадратов, только эмодзи */
         .currency-panel {
             display: flex;
             flex-wrap: wrap;
@@ -47,7 +44,6 @@
             display: flex;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 5px 12px rgba(0,0,0,0.4);
         }
         .currency-emoji {
             font-size: 34px;
@@ -56,7 +52,6 @@
         .currency-value {
             font-size: 28px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
         .currency-label {
             font-size: 12px;
@@ -109,7 +104,7 @@
             padding-left: 20px;
         }
 
-        /* Шахтёры */
+        /* Шахтёры — красивые кнопки */
         .miners-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -171,7 +166,6 @@
             font-size: 18px;
             width: 150px;
             text-align: center;
-            outline: none;
         }
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
@@ -235,6 +229,7 @@
             font-weight: bold;
             cursor: pointer;
         }
+
         /* Задания */
         .quest-category {
             margin-bottom: 28px;
@@ -259,11 +254,10 @@
             color: white;
             padding: 6px 14px;
             border-radius: 40px;
-            text-decoration: none;
-            font-weight: bold;
             border: none;
             cursor: pointer;
         }
+
         /* Профиль */
         .profile-stats-grid {
             display: grid;
@@ -308,7 +302,8 @@
             font-weight: bold;
             display: inline-block;
         }
-        /* Админка */
+
+        /* Админ-панель — аккуратная сетка, кнопки не налезают */
         .admin-panel-grid {
             display: flex;
             flex-direction: column;
@@ -373,7 +368,7 @@
 </head>
 <body>
 <div class="game-container">
-    <!-- Панель валют -->
+    <!-- ВАЛЮТЫ -->
     <div class="currency-panel">
         <div class="currency-card"><span class="currency-emoji">💎</span><div><span class="currency-value" id="diamondsVal">0</span><div class="currency-label">Алмазы</div></div></div>
         <div class="currency-card"><span class="currency-emoji">🛢️</span><div><span class="currency-value" id="oilVal">0</span><div class="currency-label">Нефть</div></div></div>
@@ -381,7 +376,7 @@
         <div class="currency-card"><span class="currency-emoji">💵</span><div><span class="currency-value" id="bucksVal">0</span><div class="currency-label">Баксы (донат)</div></div></div>
     </div>
 
-    <!-- Меню -->
+    <!-- МЕНЮ -->
     <div class="nav-menu">
         <button class="nav-btn active" data-section="miners">⛏️ Шахтёры</button>
         <button class="nav-btn" data-section="exchange">🔄 Обмен</button>
@@ -391,14 +386,14 @@
         <button class="nav-btn" data-section="admin">⚙️ Админ</button>
     </div>
 
-    <!-- Шахтёры -->
+    <!-- ШАХТЁРЫ -->
     <div id="minersSection" class="section">
         <div class="section-title">👷 Нанять шахтёров (за золото, безлимит)</div>
         <div class="miners-grid" id="minersGrid"></div>
         <div style="margin-top: 16px;">⚡ Общая добыча: <span id="totalProdSec">0.00</span> 💎/сек</div>
     </div>
 
-    <!-- Обмен -->
+    <!-- ОБМЕН -->
     <div id="exchangeSection" class="section hidden">
         <div class="section-title">💱 Обмен валют</div>
         <div class="exchange-panel">
@@ -407,17 +402,17 @@
         </div>
     </div>
 
-    <!-- Магазин -->
+    <!-- МАГАЗИН -->
     <div id="shopSection" class="section hidden">
         <div class="section-title">🏪 Магазин</div>
-        <div class="shop-tabs"><div class="shop-tab active" data-tab="normal">🪙 Золото</div><div class="shop-tab" data-tab="oil">🛢️ Нефть</div><div class="shop-tab" data-tab="premium">💎 Премиум</div><div class="shop-tab" data-tab="cases">🎁 Боксы (шахтёры)</div></div>
+        <div class="shop-tabs"><div class="shop-tab active" data-tab="normal">🪙 Золото</div><div class="shop-tab" data-tab="oil">🛢️ Нефть</div><div class="shop-tab" data-tab="premium">💎 Премиум</div><div class="shop-tab" data-tab="cases">🎁 Боксы</div></div>
         <div id="shopContent" class="shop-items"></div>
     </div>
 
-    <!-- Задания -->
+    <!-- ЗАДАНИЯ (включая задания-ссылки) -->
     <div id="questsSection" class="section hidden"><div class="section-title">🎯 Задания</div><div id="questsContainer"></div></div>
 
-    <!-- Личный кабинет -->
+    <!-- ЛИЧНЫЙ КАБИНЕТ -->
     <div id="profileSection" class="section hidden">
         <div class="section-title">👤 Личный кабинет</div>
         <div class="profile-stats-grid" id="profileStats"></div>
@@ -428,7 +423,7 @@
         <div class="stat-card" style="margin-top:12px;">⏱️ Время в игре: <span id="playtimeSpan">0</span> секунд</div>
     </div>
 
-    <!-- Админ панель -->
+    <!-- АДМИН-ПАНЕЛЬ -->
     <div id="adminSection" class="section hidden">
         <div class="section-title">🔐 Админ-панель</div>
         <input type="password" id="adminPassInput" placeholder="Пароль" class="admin-input"><button id="adminLoginBtn">Войти</button>
@@ -449,7 +444,9 @@
 </div>
 
 <script>
-    // ---------------------- ДАННЫЕ ----------------------
+    // --------------------------------------------------------------
+    //  ИГРОВЫЕ ДАННЫЕ
+    // --------------------------------------------------------------
     let minersData = [
         { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec:100/3600 },
         { level:2, name:"⛏️ Шахтёр Lv.2", hourly:700, costGold:5000, prodSec:700/3600 },
@@ -459,18 +456,25 @@
         { level:6, name:"⛏️ Шахтёр Lv.6", hourly:28000, costGold:100000, prodSec:28000/3600 },
         { level:7, name:"⛏️ Шахтёр Lv.7", hourly:100000, costGold:300000, prodSec:100000/3600 }
     ];
+
     let resources = { diamonds: 1200, oil: 60, gold: 6000, bucks: 3 };
     let minersCount = new Array(7).fill(0);
-    let totalMined = 0, totalMinersPurchased = 0, totalExchangeDiamonds = 0, totalBucksSpentOnShop = 0;
-    let blockedUsers = [], promoCodes = [];
-    let linkQuests = [];      // { id, desc, url, rewardType, rewardAmount, completed }
+    let totalMined = 0;
+    let totalMinersPurchased = 0;
+    let totalExchangeDiamonds = 0;
+    let totalBucksSpentOnShop = 0;
+
+    let blockedUsers = [];
+    let promoCodes = [];        // {code, type, amount, maxUses, usedCount, active}
+    let linkQuests = [];        // {id, desc, url, rewardType, rewardAmount, completed}
     let customQuests = [];
+
     let myUserId = "master_miner_001";
     let currentUser = { id: myUserId, refBy: null, refEarnings: 0, referrals: [], joinTime: Date.now() };
     let isBlocked = false;
     let allUsers = {};
 
-    // Квестовые шаблоны (10 уровней)
+    // квесты (10 уровней)
     let questTemplates = {
         mine: { name: "Добыча алмазов", baseReq: 100, multiplier: 2, currentLevel: 0, claimedLevels: [], rewardGoldBase: 200, type:"diamonds_mined" },
         miners: { name: "Наём шахтёров", baseReq: 3, multiplier: 1.8, currentLevel: 0, claimedLevels: [], rewardGoldBase: 300, type:"miners_bought" },
@@ -478,8 +482,12 @@
     };
     let premiumQuests = [ { name: "Премиум: Траты баксов", baseReq: 1, multiplier: 1.5, currentLevel: 0, claimedLevels: [], rewardGoldBase: 400, type:"bucks_spent" } ];
 
+    // --------------------------------------------------------------
+    //  СОХРАНЕНИЕ / ЗАГРУЗКА
+    // --------------------------------------------------------------
     function saveGame() {
-        let data = { resources, minersCount, totalMined, totalMinersPurchased, totalExchangeDiamonds, totalBucksSpentOnShop, questTemplates, premiumQuests, customQuests, linkQuests, promoCodes, currentUser, blockedUsers, allUsers };
+        let data = { resources, minersCount, totalMined, totalMinersPurchased, totalExchangeDiamonds, totalBucksSpentOnShop,
+                     questTemplates, premiumQuests, customQuests, linkQuests, promoCodes, currentUser, blockedUsers, allUsers };
         localStorage.setItem('minerEmpireFull', JSON.stringify(data));
     }
     function loadGame() {
@@ -487,10 +495,12 @@
         if(raw) {
             try {
                 let d = JSON.parse(raw);
-                resources = d.resources; minersCount = d.minersCount; totalMined = d.totalMined; totalMinersPurchased = d.totalMinersPurchased;
-                totalExchangeDiamonds = d.totalExchangeDiamonds; totalBucksSpentOnShop = d.totalBucksSpentOnShop;
+                resources = d.resources; minersCount = d.minersCount; totalMined = d.totalMined;
+                totalMinersPurchased = d.totalMinersPurchased; totalExchangeDiamonds = d.totalExchangeDiamonds;
+                totalBucksSpentOnShop = d.totalBucksSpentOnShop;
                 questTemplates = d.questTemplates; premiumQuests = d.premiumQuests; customQuests = d.customQuests || [];
-                linkQuests = d.linkQuests || []; promoCodes = d.promoCodes || []; currentUser = d.currentUser; blockedUsers = d.blockedUsers || [];
+                linkQuests = d.linkQuests || []; promoCodes = d.promoCodes || [];
+                currentUser = d.currentUser; blockedUsers = d.blockedUsers || [];
                 allUsers = d.allUsers || {};
             } catch(e) {}
         }
@@ -498,15 +508,22 @@
         if(!currentUser.joinTime) currentUser.joinTime = Date.now();
         if(!allUsers[myUserId]) allUsers[myUserId] = currentUser;
         updateUI();
-        checkPendingLinkQuest();
+        checkPendingLinkQuest();  // проверяем возврат с задания-ссылки
     }
+
     function getPlaytimeSeconds() { return Math.floor((Date.now() - (currentUser.joinTime||Date.now())) / 1000); }
 
+    // --------------------------------------------------------------
+    //  КВЕСТЫ (прогресс)
+    // --------------------------------------------------------------
     function updateQuestsByType(type, value) {
         let allQ = [...Object.values(questTemplates), ...premiumQuests, ...customQuests];
         for(let q of allQ) {
             if(q.type === type && q.currentLevel < 10) {
-                let progress = (type==='diamonds_mined')? totalMined : (type==='miners_bought')? totalMinersPurchased : (type==='exchange_diamonds')? totalExchangeDiamonds : (type==='bucks_spent')? totalBucksSpentOnShop : (q.customProgress||0);
+                let progress = (type==='diamonds_mined')? totalMined :
+                               (type==='miners_bought')? totalMinersPurchased :
+                               (type==='exchange_diamonds')? totalExchangeDiamonds :
+                               (type==='bucks_spent')? totalBucksSpentOnShop : (q.customProgress||0);
                 let need = Math.floor(q.baseReq * Math.pow(q.multiplier, q.currentLevel));
                 if(progress >= need && !(q.claimedLevels||[]).includes(q.currentLevel)) {
                     let rewardGold = q.rewardGoldBase * (q.currentLevel+1);
@@ -523,32 +540,110 @@
         renderQuests();
     }
 
+    // --------------------------------------------------------------
+    //  ОСНОВНАЯ МЕХАНИКА
+    // --------------------------------------------------------------
     function totalProduction() { let sum=0; for(let i=0;i<7;i++) sum+= minersCount[i]*minersData[i].prodSec; return sum; }
-    function buyMiner(level, qty=1) { let cost = minersData[level].costGold * qty; if(resources.gold >= cost) { resources.gold -= cost; minersCount[level] += qty; totalMinersPurchased += qty; updateQuestsByType('miners_bought', qty); saveGame(); updateUI(); showToast(`+${qty} ${minersData[level].name}`); } else showToast("Не хватает золота"); }
-    function exchangeDiamondToGold(amt) { let use = Math.min(amt, Math.floor(resources.diamonds)); let goldGet = Math.floor(use/100); if(goldGet>0) { resources.diamonds -= use; resources.gold += goldGet; totalExchangeDiamonds += use; updateQuestsByType('exchange_diamonds', use); saveGame(); updateUI(); showToast(`Обмен ${use}💎 → +${goldGet}🪙`); } else showToast("Минимум 100 алмазов"); }
-    function exchangeBucksToOil(amt) { let use = Math.min(amt, Math.floor(resources.bucks)); if(use>0) { resources.bucks -= use; resources.oil += use; saveGame(); updateUI(); showToast(`+${use}🛢️`); } }
+    function buyMiner(level, qty=1) {
+        let cost = minersData[level].costGold * qty;
+        if(resources.gold >= cost) {
+            resources.gold -= cost;
+            minersCount[level] += qty;
+            totalMinersPurchased += qty;
+            updateQuestsByType('miners_bought', qty);
+            saveGame(); updateUI();
+            showToast(`+${qty} ${minersData[level].name}`);
+        } else showToast("Не хватает золота");
+    }
+    function exchangeDiamondToGold(amt) {
+        let use = Math.min(amt, Math.floor(resources.diamonds));
+        let goldGet = Math.floor(use/100);
+        if(goldGet>0) {
+            resources.diamonds -= use;
+            resources.gold += goldGet;
+            totalExchangeDiamonds += use;
+            updateQuestsByType('exchange_diamonds', use);
+            saveGame(); updateUI();
+            showToast(`Обмен ${use}💎 → +${goldGet}🪙`);
+        } else showToast("Минимум 100 алмазов");
+    }
+    function exchangeBucksToOil(amt) {
+        let use = Math.min(amt, Math.floor(resources.bucks));
+        if(use>0) {
+            resources.bucks -= use;
+            resources.oil += use;
+            saveGame(); updateUI();
+            showToast(`+${use}🛢️`);
+        }
+    }
 
-    // Магазин
+    // --------------------------------------------------------------
+    //  МАГАЗИН И БОКСЫ
+    // --------------------------------------------------------------
     let shopData = {
         normal: [{name:"📦 Мешок алмазов", desc:"+400💎", priceGold:300, reward:{diamonds:400}}, {name:"💰 Куча золота", desc:"+1500🪙", priceGold:800, reward:{gold:1500}}],
         oil: [{name:"🛢️ Нефтяной конверт", desc:"+1000💎", priceOil:20, reward:{diamonds:1000}}],
         premium: [{name:"💎 Премиум слиток", desc:"+2500💎 +10🪙", priceBucks:1, reward:{diamonds:2500, gold:10}}],
         cases: [{name:"🎲 Бокс 'Удача'", desc:"шахтёр Lv1-3 + 300💎", priceBucks:1, type:"minerBox", minLvl:1, maxLvl:3, extraDiamonds:300},{name:"⚡ Мега-бокс", desc:"шахтёр Lv4-7 +800💎", priceBucks:3, type:"minerBox", minLvl:4, maxLvl:7, extraDiamonds:800}]
     };
-    function openMinerBox(minLvl,maxLvl,extra) { let lvl = Math.floor(Math.random()*(maxLvl-minLvl+1)+minLvl); minersCount[lvl-1]++; totalMinersPurchased++; resources.diamonds+=extra; updateQuestsByType('miners_bought',1); saveGame(); updateUI(); showToast(`🎉 +Шахтёр Lv${lvl} + ${extra}💎`); }
+    function openMinerBox(minLvl,maxLvl,extra) {
+        let lvl = Math.floor(Math.random()*(maxLvl-minLvl+1)+minLvl);
+        minersCount[lvl-1]++;
+        totalMinersPurchased++;
+        resources.diamonds += extra;
+        updateQuestsByType('miners_bought',1);
+        saveGame(); updateUI();
+        showToast(`🎉 +Шахтёр Lv${lvl} + ${extra}💎`);
+    }
     function buyShopItem(item,tab) {
-        if(tab==='normal' && resources.gold>=item.priceGold) { resources.gold-=item.priceGold; if(item.reward.diamonds) resources.diamonds+=item.reward.diamonds; if(item.reward.gold) resources.gold+=item.reward.gold; saveGame(); updateUI(); showToast("Куплено!");}
-        else if(tab==='oil' && resources.oil>=item.priceOil) { resources.oil-=item.priceOil; resources.diamonds+=item.reward.diamonds; saveGame(); updateUI();}
-        else if(tab==='premium' && resources.bucks>=item.priceBucks) { resources.bucks-=item.priceBucks; totalBucksSpentOnShop+=item.priceBucks; updateQuestsByType('bucks_spent',item.priceBucks); if(item.reward) { if(item.reward.diamonds) resources.diamonds+=item.reward.diamonds; if(item.reward.gold) resources.gold+=item.reward.gold; } saveGame(); updateUI();}
-        else if(tab==='cases' && resources.bucks>=item.priceBucks) { resources.bucks-=item.priceBucks; totalBucksSpentOnShop+=item.priceBucks; updateQuestsByType('bucks_spent',item.priceBucks); if(item.type==='minerBox') openMinerBox(item.minLvl,item.maxLvl,item.extraDiamonds); saveGame(); updateUI();}
-        else showToast("Не хватает валюты");
+        if(tab==='normal' && resources.gold>=item.priceGold) {
+            resources.gold-=item.priceGold;
+            if(item.reward.diamonds) resources.diamonds+=item.reward.diamonds;
+            if(item.reward.gold) resources.gold+=item.reward.gold;
+            saveGame(); updateUI(); showToast("Куплено!");
+        } else if(tab==='oil' && resources.oil>=item.priceOil) {
+            resources.oil-=item.priceOil;
+            resources.diamonds+=item.reward.diamonds;
+            saveGame(); updateUI();
+        } else if(tab==='premium' && resources.bucks>=item.priceBucks) {
+            resources.bucks-=item.priceBucks;
+            totalBucksSpentOnShop+=item.priceBucks;
+            updateQuestsByType('bucks_spent',item.priceBucks);
+            if(item.reward) {
+                if(item.reward.diamonds) resources.diamonds+=item.reward.diamonds;
+                if(item.reward.gold) resources.gold+=item.reward.gold;
+            }
+            saveGame(); updateUI();
+        } else if(tab==='cases' && resources.bucks>=item.priceBucks) {
+            resources.bucks-=item.priceBucks;
+            totalBucksSpentOnShop+=item.priceBucks;
+            updateQuestsByType('bucks_spent',item.priceBucks);
+            if(item.type==='minerBox') openMinerBox(item.minLvl,item.maxLvl,item.extraDiamonds);
+            saveGame(); updateUI();
+        } else showToast("Не хватает валюты");
     }
 
-    // Рефералы
+    // --------------------------------------------------------------
+    //  РЕФЕРАЛЫ
+    // --------------------------------------------------------------
     function generateRefLink() { return window.location.origin+window.location.pathname+"?ref="+myUserId; }
-    function processRef() { let params=new URLSearchParams(location.search); let refId=params.get('ref'); if(refId && refId!==myUserId && !currentUser.refBy) { currentUser.refBy=refId; if(allUsers[refId]) { if(!allUsers[refId].referrals.includes(myUserId)) allUsers[refId].referrals.push(myUserId); resources.gold+=5000; showToast("+5000 золота за переход!"); } saveGame(); updateUI(); } }
+    function processRef() {
+        let params = new URLSearchParams(location.search);
+        let refId = params.get('ref');
+        if(refId && refId !== myUserId && !currentUser.refBy) {
+            currentUser.refBy = refId;
+            if(allUsers[refId]) {
+                if(!allUsers[refId].referrals.includes(myUserId)) allUsers[refId].referrals.push(myUserId);
+                resources.gold += 5000;
+                showToast("+5000 золота за переход по реф. ссылке!");
+            }
+            saveGame(); updateUI();
+        }
+    }
 
-    // Задания-ссылки
+    // --------------------------------------------------------------
+    //  ЗАДАНИЯ-ССЫЛКИ (переход и возврат)
+    // --------------------------------------------------------------
     function createLinkQuest(desc, url, rewardType, rewardAmount) {
         let id = Date.now();
         linkQuests.push({ id, desc, url, rewardType, rewardAmount, completed: false });
@@ -558,8 +653,21 @@
     }
     function renderLinkQuests() {
         let container = document.getElementById('linkQuestsList');
-        if(container) container.innerHTML = linkQuests.map(q => `<div class="promo-item"><span>🔗 ${q.desc} → ${q.url}</span><span>Награда: ${q.rewardAmount} ${q.rewardType}</span><button class="max-btn" data-linkid="${q.id}" style="background:#d45353;">Удалить</button></div>`).join('');
-        document.querySelectorAll('[data-linkid]').forEach(btn => { btn.addEventListener('click', () => { linkQuests = linkQuests.filter(l => l.id != btn.dataset.linkid); saveGame(); renderLinkQuests(); }); });
+        if(container) {
+            container.innerHTML = linkQuests.map(q => `
+                <div class="promo-item">
+                    <span>🔗 ${q.desc} → ${q.url}</span>
+                    <span>Награда: ${q.rewardAmount} ${q.rewardType}</span>
+                    <button class="max-btn" data-linkid="${q.id}" style="background:#d45353;">Удалить</button>
+                </div>`).join('');
+        }
+        document.querySelectorAll('[data-linkid]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                linkQuests = linkQuests.filter(l => l.id != btn.dataset.linkid);
+                saveGame();
+                renderLinkQuests();
+            });
+        });
     }
     function startLinkQuest(questId) {
         let quest = linkQuests.find(q => q.id == questId);
@@ -587,7 +695,9 @@
         }
     }
 
-    // Промокоды
+    // --------------------------------------------------------------
+    //  ПРОМОКОДЫ (лимит, статистика, деактивация)
+    // --------------------------------------------------------------
     function createPromo(code, type, amount, maxUses) {
         promoCodes.push({ code, type, amount, maxUses: maxUses || 1, usedCount: 0, active: true });
         saveGame(); renderPromoCodes(); showToast(`Промокод ${code} создан`);
@@ -605,29 +715,63 @@
             saveGame(); updateUI(); renderPromoCodes();
         } else showToast("Неверный или исчерпанный промокод");
     }
-    function deactivatePromo(code) { let p = promoCodes.find(p=>p.code===code); if(p) p.active=false; saveGame(); renderPromoCodes(); }
+    function deactivatePromo(code) {
+        let p = promoCodes.find(p=>p.code===code);
+        if(p) p.active = false;
+        saveGame(); renderPromoCodes();
+    }
     function renderPromoCodes() {
         let container = document.getElementById('promoCodesList');
-        if(container) container.innerHTML = promoCodes.map(p => `<div class="promo-item"><span>📢 ${p.code} | ${p.type} ${p.amount} | Активаций: ${p.usedCount}/${p.maxUses} | ${p.active ? '✅ Активен' : '❌ Неактивен'}</span><button class="max-btn" data-promocode="${p.code}" style="background:#a53030;">Закрыть</button></div>`).join('');
-        document.querySelectorAll('[data-promocode]').forEach(btn => { btn.addEventListener('click',()=>{ deactivatePromo(btn.dataset.promocode); }); });
+        if(container) {
+            container.innerHTML = promoCodes.map(p => `
+                <div class="promo-item">
+                    <span>📢 ${p.code} | ${p.type} ${p.amount} | Активаций: ${p.usedCount}/${p.maxUses} | ${p.active ? '✅ Активен' : '❌ Неактивен'}</span>
+                    <button class="max-btn" data-promocode="${p.code}" style="background:#a53030;">Закрыть</button>
+                </div>`).join('');
+        }
+        document.querySelectorAll('[data-promocode]').forEach(btn => {
+            btn.addEventListener('click',()=>{ deactivatePromo(btn.dataset.promocode); });
+        });
     }
 
-    // Админ функции
+    // --------------------------------------------------------------
+    //  АДМИН-ФУНКЦИИ
+    // --------------------------------------------------------------
     function giveRewardToUser(uid, currency, amount) {
-        if(uid===myUserId) { if(currency==='gold') resources.gold+=amount; else if(currency==='diamonds') resources.diamonds+=amount; else if(currency==='oil') resources.oil+=amount; else if(currency==='bucks') resources.bucks+=amount; showToast(`Выдано ${amount} ${currency}`); saveGame(); updateUI(); }
-        else showToast(`Симуляция: +${amount} ${currency} игроку ${uid}`);
+        if(uid === myUserId) {
+            if(currency === 'gold') resources.gold += amount;
+            else if(currency === 'diamonds') resources.diamonds += amount;
+            else if(currency === 'oil') resources.oil += amount;
+            else if(currency === 'bucks') resources.bucks += amount;
+            showToast(`Выдано ${amount} ${currency}`);
+            saveGame(); updateUI();
+        } else showToast(`Симуляция: +${amount} ${currency} игроку ${uid}`);
     }
     function showUserStats(uid) {
-        let user = (uid===myUserId)? currentUser : allUsers[uid];
-        if(!user) { document.getElementById('adminStatsResult').innerHTML = `❌ Пользователь ${uid} не найден`; return; }
-        let minersCountUser = (uid===myUserId)? minersCount : (allUsers[uid]?.minersCount || [0,0,0,0,0,0,0]);
+        let user = (uid === myUserId) ? currentUser : allUsers[uid];
+        if(!user) {
+            document.getElementById('adminStatsResult').innerHTML = `❌ Пользователь ${uid} не найден`;
+            return;
+        }
+        let minersCountUser = (uid === myUserId) ? minersCount : (allUsers[uid]?.minersCount || [0,0,0,0,0,0,0]);
         let totalProdHour = 0, totalProdSec = 0;
-        for(let i=0;i<7;i++) { totalProdHour += minersCountUser[i]*minersData[i].hourly; totalProdSec += minersCountUser[i]*minersData[i].prodSec; }
+        for(let i=0;i<7;i++) {
+            totalProdHour += minersCountUser[i] * minersData[i].hourly;
+            totalProdSec += minersCountUser[i] * minersData[i].prodSec;
+        }
         let playtime = user.joinTime ? Math.floor((Date.now()-user.joinTime)/1000) : 0;
-        document.getElementById('adminStatsResult').innerHTML = `<b>📊 Статистика ${uid}</b><br>👥 Рефералов: ${user.referrals?.length||0}<br>⛏️ Шахтёры: ${minersCountUser.map((c,i)=>`Lv${i+1}:${c}`).join(', ')}<br>💰 Доход в час: ~${totalProdHour.toFixed(0)}💎 | в сек: ${totalProdSec.toFixed(4)}💎<br>⏱️ В игре: ${playtime} сек.`;
+        document.getElementById('adminStatsResult').innerHTML = `
+            <b>📊 Статистика ${uid}</b><br>
+            👥 Рефералов: ${user.referrals?.length||0}<br>
+            ⛏️ Шахтёры: ${minersCountUser.map((c,i)=>`Lv${i+1}:${c}`).join(', ')}<br>
+            💰 Доход в час: ~${totalProdHour.toFixed(0)}💎 | в сек: ${totalProdSec.toFixed(4)}💎<br>
+            ⏱️ В игре: ${playtime} сек.
+        `;
     }
 
-    // UI
+    // --------------------------------------------------------------
+    //  ОТРИСОВКА ВСЕГО UI
+    // --------------------------------------------------------------
     let currentShopTab = "normal";
     function updateUI() {
         document.getElementById('diamondsVal').innerText = Math.floor(resources.diamonds);
@@ -638,33 +782,151 @@
         renderMiners(); renderShop(currentShopTab); renderQuests(); renderProfile();
         document.getElementById('playtimeSpan').innerText = getPlaytimeSeconds();
     }
-    function renderMiners() { let cont=document.getElementById('minersGrid'); if(!cont) return; cont.innerHTML=''; for(let i=0;i<7;i++){ let m=minersData[i]; cont.innerHTML+=`<div class="miner-card"><div><b>${m.name}</b> lvl${m.level}</div><div>⚡ ${m.prodSec.toFixed(5)}/сек</div><div>🪙 ${m.costGold}</div><div>Кол-во: ${minersCount[i]}</div><div class="buy-group"><button class="buy-btn" data-lvl="${i}" data-qty="1">+1</button><button class="buy-btn" data-lvl="${i}" data-qty="10">+10</button></div></div>`; } document.querySelectorAll('.buy-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let lvl=parseInt(btn.dataset.lvl); let qty=parseInt(btn.dataset.qty); buyMiner(lvl,qty); }); }); }
-    function renderShop(tab) { let container=document.getElementById('shopContent'); let items=shopData[tab]; if(!items) return; container.innerHTML=items.map(item=>`<div class="shop-item"><h3>${item.name}</h3><p>${item.desc}</p><p>Цена: ${item.priceBucks?item.priceBucks+'💵':item.priceGold?item.priceGold+'🪙':item.priceOil?item.priceOil+'🛢️':''}</p><button class="shop-buy" data-item='${JSON.stringify(item)}' data-tab="${tab}">Купить</button></div>`).join(''); document.querySelectorAll('.shop-buy').forEach(btn=>{ btn.addEventListener('click',()=>{ let it=JSON.parse(btn.dataset.item); buyShopItem(it,btn.dataset.tab); }); }); }
-    function renderQuests() { let cont=document.getElementById('questsContainer'); if(!cont) return; let html=`<div class="quest-category"><h3>✨ Премиум задания</h3><div class="quest-levels">`; for(let q of premiumQuests) html+=getQuestHtml(q); html+=`</div></div><div class="quest-category"><h3>📖 Сюжетные задания</h3><div class="quest-levels">`; for(let q of Object.values(questTemplates)) html+=getQuestHtml(q); if(customQuests.length) html+=`<div class="quest-category"><h3>⚡ Событийные</h3><div class="quest-levels">`+customQuests.map(q=>getQuestHtml(q)).join('')+`</div></div>`; html+=`<div class="quest-category"><h3>🔗 Задания-ссылки</h3><div class="quest-levels">`+linkQuests.map(q=>`<div class="quest-line"><div><b>${q.desc}</b><br>Перейти по ссылке и вернуться</div><button class="quest-link-btn" data-linkid="${q.id}">Выполнить</button></div>`).join('')+`</div></div>`; cont.innerHTML=html; document.querySelectorAll('.quest-link-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.linkid); startLinkQuest(id); }); }); function getQuestHtml(q){ let need=Math.floor(q.baseReq*Math.pow(q.multiplier, q.currentLevel)); let progress=(q.type==='diamonds_mined')?totalMined:(q.type==='miners_bought')?totalMinersPurchased:(q.type==='exchange_diamonds')?totalExchangeDiamonds:(q.type==='bucks_spent')?totalBucksSpentOnShop:(q.customProgress||0); let completed=q.claimedLevels?.length||0; return `<div class="quest-line"><div><b>${q.name}</b> (${completed}/10)<br>${progress}/${need}<progress value="${progress}" max="${need}"></progress></div><div>${q.currentLevel<10?`+${q.rewardGoldBase*(q.currentLevel+1)}🪙`:'✅ завершено'}</div></div>`; } }
-    function renderProfile() { document.getElementById('profileStats').innerHTML = `<div class="stat-card">🆔 ID: ${myUserId}</div><div class="stat-card">⛏️ Всего шахтёров: ${minersCount.reduce((a,b)=>a+b,0)}</div><div class="stat-card">💎 Добыто алмазов: ${Math.floor(totalMined)}</div><div class="stat-card">🎁 Реф. заработок: ${currentUser.refEarnings.toFixed(2)} баксов</div>`; document.getElementById('refLinkInput').value=generateRefLink(); document.getElementById('refStatText').innerText = `Приглашено: ${currentUser.referrals.length} | Бонус 5% от трат: ${currentUser.refEarnings.toFixed(2)}💵`; document.getElementById('referralsList').innerHTML = currentUser.referrals.map(id=>`<div>👤 ${id}</div>`).join(''); }
-
-    // События
-    function bindEvents() {
-        document.getElementById('maxDiamonds').onclick=()=>{ document.getElementById('diamondAmount').value=Math.floor(resources.diamonds); };
-        document.getElementById('maxBucks').onclick=()=>{ document.getElementById('bucksAmount').value=Math.floor(resources.bucks); };
-        document.getElementById('exchangeDiamondToGold').onclick=()=>{ let a=parseInt(document.getElementById('diamondAmount').value)||0; exchangeDiamondToGold(a); };
-        document.getElementById('exchangeBucksToOil').onclick=()=>{ let a=parseInt(document.getElementById('bucksAmount').value)||0; exchangeBucksToOil(a); };
-        document.getElementById('copyRefBtn').onclick=()=>{ navigator.clipboard.writeText(generateRefLink()); showToast("Ссылка скопирована"); };
-        document.getElementById('activatePromoProfileBtn').onclick=()=>{ let code=document.getElementById('promoInputProfile').value; activatePromo(code); };
-        document.getElementById('adminLoginBtn').onclick=()=>{ if(document.getElementById('adminPassInput').value==='admin2026') document.getElementById('adminTools').style.display='block'; else showToast("Неверный пароль"); };
-        document.getElementById('blockUserBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; if(uid){ if(!blockedUsers.includes(uid)) blockedUsers.push(uid); if(uid===myUserId) isBlocked=true; saveGame(); showToast(`Заблокирован ${uid}`);} };
-        document.getElementById('unblockUserBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; blockedUsers=blockedUsers.filter(u=>u!==uid); if(uid===myUserId) isBlocked=false; saveGame(); showToast(`Разблокирован ${uid}`); };
-        document.getElementById('giveCustomRewardBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; let cur=document.getElementById('rewardCurrencySelect').value; let amt=parseInt(document.getElementById('rewardAmount').value)||0; giveRewardToUser(uid,cur,amt); };
-        document.getElementById('viewStatsByIdBtn').onclick=()=>{ let uid=document.getElementById('targetUserId').value; if(uid) showUserStats(uid); else showToast("Введите ID"); };
-        document.getElementById('createPromoBtn').onclick=()=>{ let code=document.getElementById('promoCodeName').value; let type=document.getElementById('promoRewardType').value; let amt=parseInt(document.getElementById('promoRewardAmount').value); let maxUses=parseInt(document.getElementById('promoMaxUses').value)||1; if(code&&amt) createPromo(code,type,amt,maxUses); };
-        document.getElementById('createLinkQuestBtn').onclick=()=>{ let desc=document.getElementById('linkQuestDesc').value; let url=document.getElementById('linkQuestUrl').value; let rewardType=document.getElementById('linkQuestRewardType').value; let amount=parseInt(document.getElementById('linkQuestRewardAmount').value); if(desc&&url&&amount) createLinkQuest(desc,url,rewardType,amount); };
-        document.querySelectorAll('.nav-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ document.querySelectorAll('.section').forEach(s=>s.classList.add('hidden')); document.getElementById(btn.dataset.section+'Section').classList.remove('hidden'); document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }); });
-        document.querySelectorAll('.shop-tab').forEach(tab=>{ tab.addEventListener('click',()=>{ document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active')); tab.classList.add('active'); currentShopTab=tab.dataset.tab; renderShop(currentShopTab); }); });
+    function renderMiners() {
+        let cont = document.getElementById('minersGrid');
+        if(!cont) return;
+        cont.innerHTML = '';
+        for(let i=0;i<7;i++) {
+            let m = minersData[i];
+            let div = document.createElement('div');
+            div.className = 'miner-card';
+            div.innerHTML = `
+                <div><b>${m.name}</b> lvl${m.level}</div>
+                <div>⚡ ${m.prodSec.toFixed(5)}/сек</div>
+                <div>🪙 ${m.costGold}</div>
+                <div>Кол-во: ${minersCount[i]}</div>
+                <div class="buy-group">
+                    <button class="buy-btn" data-lvl="${i}" data-qty="1">+1</button>
+                    <button class="buy-btn" data-lvl="${i}" data-qty="10">+10</button>
+                </div>
+            `;
+            cont.appendChild(div);
+        }
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                let lvl = parseInt(btn.dataset.lvl);
+                let qty = parseInt(btn.dataset.qty);
+                buyMiner(lvl, qty);
+            });
+        });
     }
-    function showToast(msg) { let t=document.createElement('div'); t.className='toast'; t.innerText=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2000); }
-    setInterval(()=>{ if(!isBlocked) { let prod=totalProduction(); if(prod>0) { resources.diamonds+=prod; totalMined+=prod; updateQuestsByType('diamonds_mined', prod); saveGame(); updateUI(); } } }, 1000);
-    loadGame(); bindEvents(); processRef(); setInterval(saveGame,5000); renderPromoCodes(); renderLinkQuests();
+    function renderShop(tab) {
+        let container = document.getElementById('shopContent');
+        let items = shopData[tab];
+        if(!items) return;
+        container.innerHTML = items.map(item => `
+            <div class="shop-item">
+                <h3>${item.name}</h3>
+                <p>${item.desc}</p>
+                <p>Цена: ${item.priceBucks?item.priceBucks+'💵':item.priceGold?item.priceGold+'🪙':item.priceOil?item.priceOil+'🛢️':''}</p>
+                <button class="shop-buy" data-item='${JSON.stringify(item)}' data-tab="${tab}">Купить</button>
+            </div>
+        `).join('');
+        document.querySelectorAll('.shop-buy').forEach(btn => {
+            btn.addEventListener('click', () => {
+                let it = JSON.parse(btn.dataset.item);
+                buyShopItem(it, btn.dataset.tab);
+            });
+        });
+    }
+    function renderQuests() {
+        let cont = document.getElementById('questsContainer');
+        if(!cont) return;
+        let html = `<div class="quest-category"><h3>✨ Премиум задания</h3><div class="quest-levels">`;
+        for(let q of premiumQuests) html += getQuestHtml(q);
+        html += `</div></div><div class="quest-category"><h3>📖 Сюжетные задания</h3><div class="quest-levels">`;
+        for(let q of Object.values(questTemplates)) html += getQuestHtml(q);
+        if(customQuests.length) html += `<div class="quest-category"><h3>⚡ Событийные</h3><div class="quest-levels">` + customQuests.map(q=>getQuestHtml(q)).join('') + `</div></div>`;
+        html += `<div class="quest-category"><h3>🔗 Задания-ссылки</h3><div class="quest-levels">` + linkQuests.map(q => `
+            <div class="quest-line">
+                <div><b>${q.desc}</b><br>Перейти по ссылке и вернуться</div>
+                <button class="quest-link-btn" data-linkid="${q.id}">Выполнить</button>
+            </div>
+        `).join('') + `</div></div>`;
+        cont.innerHTML = html;
+        document.querySelectorAll('.quest-link-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                let id = parseInt(btn.dataset.linkid);
+                startLinkQuest(id);
+            });
+        });
+        function getQuestHtml(q) {
+            let need = Math.floor(q.baseReq * Math.pow(q.multiplier, q.currentLevel));
+            let progress = (q.type==='diamonds_mined')? totalMined :
+                           (q.type==='miners_bought')? totalMinersPurchased :
+                           (q.type==='exchange_diamonds')? totalExchangeDiamonds :
+                           (q.type==='bucks_spent')? totalBucksSpentOnShop : (q.customProgress||0);
+            let completed = q.claimedLevels?.length || 0;
+            return `<div class="quest-line">
+                        <div><b>${q.name}</b> (${completed}/10)<br>${progress}/${need}<progress value="${progress}" max="${need}"></progress></div>
+                        <div>${q.currentLevel<10?`+${q.rewardGoldBase*(q.currentLevel+1)}🪙`:'✅ завершено'}</div>
+                    </div>`;
+        }
+    }
+    function renderProfile() {
+        document.getElementById('profileStats').innerHTML = `
+            <div class="stat-card">🆔 ID: ${myUserId}</div>
+            <div class="stat-card">⛏️ Всего шахтёров: ${minersCount.reduce((a,b)=>a+b,0)}</div>
+            <div class="stat-card">💎 Добыто алмазов: ${Math.floor(totalMined)}</div>
+            <div class="stat-card">🎁 Реф. заработок: ${currentUser.refEarnings.toFixed(2)} баксов</div>
+        `;
+        document.getElementById('refLinkInput').value = generateRefLink();
+        document.getElementById('refStatText').innerText = `Приглашено: ${currentUser.referrals.length} | Бонус 5% от трат: ${currentUser.refEarnings.toFixed(2)}💵`;
+        document.getElementById('referralsList').innerHTML = currentUser.referrals.map(id => `<div>👤 ${id}</div>`).join('');
+    }
+
+    // --------------------------------------------------------------
+    //  СОБЫТИЯ И ЗАПУСК
+    // --------------------------------------------------------------
+    function bindEvents() {
+        document.getElementById('maxDiamonds').onclick = () => { document.getElementById('diamondAmount').value = Math.floor(resources.diamonds); };
+        document.getElementById('maxBucks').onclick = () => { document.getElementById('bucksAmount').value = Math.floor(resources.bucks); };
+        document.getElementById('exchangeDiamondToGold').onclick = () => { let a = parseInt(document.getElementById('diamondAmount').value)||0; exchangeDiamondToGold(a); };
+        document.getElementById('exchangeBucksToOil').onclick = () => { let a = parseInt(document.getElementById('bucksAmount').value)||0; exchangeBucksToOil(a); };
+        document.getElementById('copyRefBtn').onclick = () => { navigator.clipboard.writeText(generateRefLink()); showToast("Ссылка скопирована"); };
+        document.getElementById('activatePromoProfileBtn').onclick = () => { let code = document.getElementById('promoInputProfile').value; activatePromo(code); };
+        document.getElementById('adminLoginBtn').onclick = () => { if(document.getElementById('adminPassInput').value === 'admin2026') document.getElementById('adminTools').style.display = 'block'; else showToast("Неверный пароль"); };
+        document.getElementById('blockUserBtn').onclick = () => { let uid = document.getElementById('targetUserId').value; if(uid){ if(!blockedUsers.includes(uid)) blockedUsers.push(uid); if(uid===myUserId) isBlocked=true; saveGame(); showToast(`Заблокирован ${uid}`);} };
+        document.getElementById('unblockUserBtn').onclick = () => { let uid = document.getElementById('targetUserId').value; blockedUsers = blockedUsers.filter(u=>u!==uid); if(uid===myUserId) isBlocked=false; saveGame(); showToast(`Разблокирован ${uid}`); };
+        document.getElementById('giveCustomRewardBtn').onclick = () => { let uid = document.getElementById('targetUserId').value; let cur = document.getElementById('rewardCurrencySelect').value; let amt = parseInt(document.getElementById('rewardAmount').value)||0; giveRewardToUser(uid,cur,amt); };
+        document.getElementById('viewStatsByIdBtn').onclick = () => { let uid = document.getElementById('targetUserId').value; if(uid) showUserStats(uid); else showToast("Введите ID"); };
+        document.getElementById('createPromoBtn').onclick = () => { let code = document.getElementById('promoCodeName').value; let type = document.getElementById('promoRewardType').value; let amt = parseInt(document.getElementById('promoRewardAmount').value); let maxUses = parseInt(document.getElementById('promoMaxUses').value)||1; if(code&&amt) createPromo(code,type,amt,maxUses); };
+        document.getElementById('createLinkQuestBtn').onclick = () => { let desc = document.getElementById('linkQuestDesc').value; let url = document.getElementById('linkQuestUrl').value; let rewardType = document.getElementById('linkQuestRewardType').value; let amount = parseInt(document.getElementById('linkQuestRewardAmount').value); if(desc&&url&&amount) createLinkQuest(desc,url,rewardType,amount); };
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+                document.getElementById(btn.dataset.section + 'Section').classList.remove('hidden');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+        document.querySelectorAll('.shop-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.shop-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                currentShopTab = tab.dataset.tab;
+                renderShop(currentShopTab);
+            });
+        });
+    }
+    function showToast(msg) {
+        let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
+    }
+    setInterval(() => {
+        if(!isBlocked) {
+            let prod = totalProduction();
+            if(prod > 0) {
+                resources.diamonds += prod;
+                totalMined += prod;
+                updateQuestsByType('diamonds_mined', prod);
+                saveGame(); updateUI();
+            }
+        }
+    }, 1000);
+    loadGame(); bindEvents(); processRef(); setInterval(saveGame, 5000);
+    renderPromoCodes(); renderLinkQuests();
 </script>
 </body>
 </html>
-```
