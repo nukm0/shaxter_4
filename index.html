@@ -1,648 +1,753 @@
+Вот полная версия игры с меню, неограниченной покупкой шахтёров, тремя разделами магазина, заданиями, личным кабинетом и админ-панелью.
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Шахтёр: Алмазы, Нефть, Золото | Фиолетовая премиум игра</title>
+    <title>Miner Empire: Шахтёрская премиум игра</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
         }
 
         body {
             min-height: 100vh;
-            background: linear-gradient(145deg, #2b0b3a 0%, #5e2a84 50%, #9b4dca 100%);
-            font-family: 'Segoe UI', 'Poppins', 'Roboto', sans-serif;
-            padding: 20px;
-            color: #f3e6ff;
+            background: linear-gradient(135deg, #1a0530, #3b1b5e, #7b3da0);
+            background-attachment: fixed;
+            padding: 18px;
+            color: #f5ecff;
         }
 
-        /* контейнер */
-        .game-container {
+        /* Главный контейнер */
+        .game-wrapper {
             max-width: 1400px;
             margin: 0 auto;
             backdrop-filter: blur(2px);
         }
 
-        /* панель валют */
-        .currencies-panel {
+        /* Верхняя панель валют */
+        .currencies-bar {
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-around;
-            gap: 16px;
-            background: rgba(20, 5, 40, 0.65);
+            justify-content: space-between;
+            gap: 14px;
+            background: rgba(20, 6, 40, 0.7);
             backdrop-filter: blur(12px);
-            border-radius: 48px;
-            padding: 20px 24px;
-            margin-bottom: 32px;
-            border: 1px solid rgba(210, 140, 255, 0.5);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-        }
-
-        .currency-card {
-            background: linear-gradient(135deg, #3a1c5e, #23144a);
-            padding: 12px 25px;
             border-radius: 60px;
+            padding: 16px 28px;
+            margin-bottom: 28px;
+            border: 1px solid #c27eff;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+        }
+        .currency {
             display: flex;
             align-items: center;
-            gap: 14px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-            transition: transform 0.2s;
-            border: 1px solid #bb86fc;
+            gap: 10px;
+            background: #2e174baa;
+            padding: 6px 20px;
+            border-radius: 50px;
         }
-
-        .currency-card:hover {
-            transform: translateY(-3px);
-        }
-
         .currency-icon {
-            font-size: 36px;
-            filter: drop-shadow(0 0 4px gold);
+            font-size: 32px;
         }
-
-        .currency-info {
-            display: flex;
-            flex-direction: column;
+        .currency-value {
+            font-size: 26px;
+            font-weight: bold;
+            text-shadow: 0 0 3px gold;
         }
-
         .currency-label {
-            font-size: 14px;
-            letter-spacing: 1px;
+            font-size: 13px;
             opacity: 0.8;
         }
 
-        .currency-value {
-            font-size: 28px;
+        /* Меню навигации */
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 32px;
+            background: #1f0a3aa0;
+            border-radius: 60px;
+            padding: 8px 18px;
+            backdrop-filter: blur(8px);
+        }
+        .nav-btn {
+            background: linear-gradient(145deg, #412b64, #261842);
+            border: none;
+            padding: 12px 26px;
+            border-radius: 40px;
+            font-size: 18px;
             font-weight: bold;
-            line-height: 1;
-            text-shadow: 0 0 5px #c084fc;
+            color: #f0dbff;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px black;
         }
+        .nav-btn.active {
+            background: linear-gradient(145deg, #9f5eff, #b77eff);
+            color: white;
+            text-shadow: 0 0 4px purple;
+            box-shadow: 0 0 12px #c084fc;
+        }
+        .nav-btn:active { transform: scale(0.96); }
 
-        /* секции */
+        /* Секции контента */
+        .section {
+            background: rgba(10, 3, 24, 0.55);
+            backdrop-filter: blur(10px);
+            border-radius: 48px;
+            padding: 24px;
+            border: 1px solid #bc89ff;
+            margin-bottom: 35px;
+            transition: all 0.2s;
+        }
         .section-title {
-            font-size: 26px;
-            margin: 25px 0 15px 0;
-            padding-left: 12px;
-            border-left: 6px solid #e0aaff;
-            font-weight: 700;
-            text-shadow: 0 2px 5px #31005e;
+            font-size: 28px;
+            margin-bottom: 20px;
+            border-left: 6px solid #ddb5ff;
+            padding-left: 20px;
+        }
+        .hidden {
+            display: none;
         }
 
-        /* сетка шахтёров */
+        /* Сетка шахтёров */
         .miners-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 22px;
-            margin-bottom: 40px;
+            gap: 24px;
         }
-
         .miner-card {
-            background: linear-gradient(125deg, #2a164b, #1d0e36);
+            background: linear-gradient(125deg, #2f1a55, #1e0e38);
             border-radius: 32px;
             padding: 18px;
-            transition: all 0.2s;
-            border: 1px solid rgba(170, 90, 255, 0.6);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            backdrop-filter: blur(4px);
-        }
-
-        .miner-card.bought {
-            opacity: 0.85;
-            background: linear-gradient(125deg, #241b36, #19122b);
-            border-color: #ffd966;
-            box-shadow: 0 0 12px rgba(255,220,100,0.3);
-        }
-
-        .miner-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            font-size: 22px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .miner-name {
-            background: #00000055;
-            padding: 4px 12px;
-            border-radius: 40px;
-        }
-
-        .miner-level {
-            color: #ffd966;
-        }
-
-        .production-stats {
-            background: #0f0622a0;
-            border-radius: 24px;
-            padding: 12px;
-            margin: 12px 0;
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-        }
-
-        .cost-gold {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 18px;
-            margin: 15px 0;
-            background: #00000044;
-            padding: 8px 12px;
-            border-radius: 28px;
-        }
-
-        .buy-btn {
-            width: 100%;
-            background: linear-gradient(90deg, #f0a34b, #ffc857);
-            border: none;
-            color: #2b0b2f;
-            font-weight: bold;
-            font-size: 18px;
-            padding: 12px;
-            border-radius: 60px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 10px black;
-            font-family: inherit;
-        }
-
-        .buy-btn:active {
-            transform: scale(0.97);
-        }
-
-        .buy-btn.disabled-btn, .buy-btn:disabled {
-            background: #5a4a6e;
-            color: #bcbcbc;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* секции обмена и кейсы */
-        .exchange-section, .case-section {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            background: rgba(25, 10, 45, 0.7);
-            backdrop-filter: blur(8px);
-            border-radius: 48px;
-            padding: 24px;
-            margin-bottom: 32px;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .exchange-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-        }
-
-        .action-btn {
-            background: #412e62;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            font-size: 16px;
+            border: 1px solid #c48eff;
             transition: 0.1s;
-            box-shadow: 0 2px 6px black;
+        }
+        .miner-stats {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin: 12px 0;
+        }
+        .buy-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .buy-btn, .shop-item-btn {
+            background: #ffb347;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.1s;
+            flex:1;
+            font-size: 14px;
+        }
+        .buy-btn:active, .shop-item-btn:active { transform: scale(0.97); }
+        .buy-btn:disabled { background: #5a4a6e; cursor: not-allowed; }
+
+        /* магазин вкладки */
+        .shop-tabs {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+        .shop-tab {
+            background: #2f1a55;
+            padding: 10px 24px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .shop-tab.active {
+            background: #c07aff;
+            color: #1d072e;
+        }
+        .shop-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 20px;
+        }
+        .shop-item {
+            background: #1f0d3a;
+            border-radius: 28px;
+            padding: 14px;
+            text-align: center;
         }
 
-        .action-btn:active {
-            transform: scale(0.96);
+        /* задания */
+        .quest-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
-
-        .case-btn {
-            background: linear-gradient(90deg, #c94df6, #9b30ff);
-            font-size: 22px;
-            padding: 12px 28px;
+        .quest-item {
+            background: #251441;
+            border-radius: 28px;
+            padding: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .claim-btn {
+            background: #7f41cf;
+            border: none;
+            padding: 8px 18px;
             border-radius: 60px;
             font-weight: bold;
-            box-shadow: 0 0 15px #d67aff;
+            cursor: pointer;
         }
-
-        .rate-info {
-            font-size: 14px;
-            background: #0a0320;
-            padding: 8px 16px;
-            border-radius: 24px;
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
+            gap: 20px;
         }
-
-        footer {
+        .stat-card {
+            background: #2f1a55;
+            border-radius: 28px;
+            padding: 16px;
             text-align: center;
-            margin-top: 40px;
-            font-size: 12px;
-            opacity: 0.7;
         }
-
-        @media (max-width: 700px) {
-            .currency-value {
-                font-size: 22px;
-            }
-            .miners-grid {
-                grid-template-columns: 1fr;
-            }
+        .admin-panel {
+            background: #120b22;
+            border-radius: 40px;
+            padding: 24px;
+        }
+        .admin-input-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        .admin-input {
+            padding: 10px;
+            border-radius: 40px;
+            border: none;
+            background: #2f1f4a;
+            color: white;
         }
         button {
             font-family: inherit;
         }
-        .highlight {
-            text-shadow: 0 0 6px gold;
+        .toast-msg {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2f1a55ee;
+            backdrop-filter: blur(12px);
+            padding: 12px 28px;
+            border-radius: 60px;
+            color: #ffecb3;
+            font-weight: bold;
+            z-index: 9999;
+            border-left: 5px solid #ffb347;
+        }
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            opacity: 0.6;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
+<div class="game-wrapper">
     <!-- панель валют -->
-    <div class="currencies-panel">
-        <div class="currency-card">
-            <div class="currency-icon">💎</div>
-            <div class="currency-info">
-                <div class="currency-label">АЛМАЗЫ</div>
-                <div class="currency-value" id="diamondsValue">0</div>
-            </div>
-        </div>
-        <div class="currency-card">
-            <div class="currency-icon">🛢️</div>
-            <div class="currency-info">
-                <div class="currency-label">НЕФТЬ</div>
-                <div class="currency-value" id="oilValue">0</div>
-            </div>
-        </div>
-        <div class="currency-card">
-            <div class="currency-icon">🪙</div>
-            <div class="currency-info">
-                <div class="currency-label">ЗОЛОТО</div>
-                <div class="currency-value" id="goldValue">0</div>
-            </div>
-        </div>
-        <div class="currency-card">
-            <div class="currency-icon">💵</div>
-            <div class="currency-info">
-                <div class="currency-label">БАКСЫ (донат)</div>
-                <div class="currency-value" id="bucksValue">0</div>
-            </div>
-        </div>
+    <div class="currencies-bar">
+        <div class="currency"><span class="currency-icon">💎</span><span class="currency-value" id="diamondsVal">0</span><span class="currency-label">Алмазы</span></div>
+        <div class="currency"><span class="currency-icon">🛢️</span><span class="currency-value" id="oilVal">0</span><span class="currency-label">Нефть</span></div>
+        <div class="currency"><span class="currency-icon">🪙</span><span class="currency-value" id="goldVal">0</span><span class="currency-label">Золото</span></div>
+        <div class="currency"><span class="currency-icon">💵</span><span class="currency-value" id="bucksVal">0</span><span class="currency-label">Баксы</span></div>
     </div>
 
-    <!-- производство в секунду -->
-    <div style="text-align: center; margin-bottom: 20px; background: #220e3baa; border-radius: 60px; padding: 8px; width: fit-content; margin-left: auto; margin-right: auto;">
-        ⚡ Добыча алмазов: <strong id="productionPerSec">0.00</strong> 💎/сек
+    <!-- навигационное меню -->
+    <div class="nav-menu">
+        <button class="nav-btn active" data-section="miners">⛏️ Шахтёры</button>
+        <button class="nav-btn" data-section="shop">🛒 Магазин</button>
+        <button class="nav-btn" data-section="quests">📜 Задания</button>
+        <button class="nav-btn" data-section="profile">👤 Личный кабинет</button>
+        <button class="nav-btn" data-section="admin">⚙️ Админ панель</button>
     </div>
 
-    <!-- список шахтёров -->
-    <div class="section-title">👷‍♂️ НАЁМ ШАХТЁРОВ (за золото)</div>
-    <div class="miners-grid" id="minersContainer"></div>
-
-    <!-- Обмен валют -->
-    <div class="section-title">🔄 ОБМЕН & КОНВЕРТАЦИЯ</div>
-    <div class="exchange-section">
-        <div class="rate-info">💎 Алмаз → 🪙 Золото: 10 алмазов = 1 золото</div>
-        <div class="exchange-buttons">
-            <button class="action-btn" id="diamondToGold100">➕ 100💎 → 10🪙</button>
-            <button class="action-btn" id="diamondToGold1000">➕ 1000💎 → 100🪙</button>
-            <button class="action-btn" id="diamondToGoldAll">Все 💎 → 🪙</button>
-        </div>
-    </div>
-    <div class="exchange-section">
-        <div class="rate-info">💎 Алмаз → 🛢️ Нефть: 20 алмазов = 1 нефть</div>
-        <div class="exchange-buttons">
-            <button class="action-btn" id="diamondToOil200">➕ 200💎 → 10🛢️</button>
-            <button class="action-btn" id="diamondToOil1000">➕ 1000💎 → 50🛢️</button>
-            <button class="action-btn" id="diamondToOilAll">Все 💎 → 🛢️</button>
-        </div>
-    </div>
-    <div class="exchange-section">
-        <div class="rate-info">🛢️ Нефть → 💵 Баксы: 10 нефти = 1 бакс (донат)</div>
-        <div class="exchange-buttons">
-            <button class="action-btn" id="oilToBucks10">➕ 10🛢️ → 1💵</button>
-            <button class="action-btn" id="oilToBucks100">➕ 100🛢️ → 10💵</button>
-            <button class="action-btn" id="oilToBucksAll">Всю нефть → 💵</button>
-        </div>
+    <!-- Секция Шахтёры (неограниченная покупка) -->
+    <div id="minersSection" class="section">
+        <div class="section-title">👷 НАНЯТЬ ШАХТЁРОВ (за золото, безлимит)</div>
+        <div class="miners-grid" id="minersGrid"></div>
+        <div style="margin-top: 12px;">⚡ Общая добыча: <span id="totalProdSec">0.00</span> 💎/сек</div>
     </div>
 
-    <!-- Кейсы -->
-    <div class="section-title">🎁 СУНДУКИ ШАХТЁРА (за баксы)</div>
-    <div class="case-section">
-        <div class="rate-info">✨ «Балансный кейс» — 1 бакс. Случайная награда: алмазы, золото, нефть или баксы!</div>
-        <button class="action-btn case-btn" id="openCaseBtn">📦 ОТКРЫТЬ КЕЙС (1 💵)</button>
+    <!-- Секция Магазин (три вкладки) -->
+    <div id="shopSection" class="section hidden">
+        <div class="section-title">🏪 МАГАЗИН</div>
+        <div class="shop-tabs">
+            <div class="shop-tab active" data-shop-tab="normal">🪙 Обычный (золото)</div>
+            <div class="shop-tab" data-shop-tab="oil">🛢️ Нефтяной (нефть)</div>
+            <div class="shop-tab" data-shop-tab="premium">💎 Премиум (баксы)</div>
+        </div>
+        <div id="shopContent" class="shop-items"></div>
     </div>
-    <footer>
-        ⛏️ Каждый шахтёр покупается один раз и увеличивает добычу алмазов навсегда.<br>
-        💾 Автосохранение в браузере. Градиентная магия фиолета ✨
-    </footer>
+
+    <!-- Секция Задания -->
+    <div id="questsSection" class="section hidden">
+        <div class="section-title">🎯 ЗАДАНИЯ И НАГРАДЫ</div>
+        <div id="questsList" class="quest-list"></div>
+    </div>
+
+    <!-- Личный кабинет -->
+    <div id="profileSection" class="section hidden">
+        <div class="section-title">📊 СТАТИСТИКА ПРОФИЛЯ</div>
+        <div class="profile-stats" id="profileStats"></div>
+    </div>
+
+    <!-- Админ панель -->
+    <div id="adminSection" class="section hidden">
+        <div class="section-title">🔐 АДМИН-ПАНЕЛЬ (пароль: admin2026)</div>
+        <div class="admin-panel">
+            <input type="password" id="adminPass" placeholder="Введите пароль" class="admin-input">
+            <button id="unlockAdminBtn" class="action-btn">Войти</button>
+            <div id="adminControls" style="display:none; margin-top: 20px;">
+                <h3>Управление ресурсами</h3>
+                <div class="admin-input-group">
+                    <input type="number" id="addDiamonds" placeholder="Алмазы" class="admin-input"> <button id="giveDiamonds">+💎</button>
+                    <input type="number" id="addOil" placeholder="Нефть" class="admin-input"> <button id="giveOil">+🛢️</button>
+                    <input type="number" id="addGold" placeholder="Золото" class="admin-input"> <button id="giveGold">+🪙</button>
+                    <input type="number" id="addBucks" placeholder="Баксы" class="admin-input"> <button id="giveBucks">+💵</button>
+                </div>
+                <button id="resetGameBtn" style="background:#a12244;">♻️ Полный сброс игры</button>
+                <button id="addAllMinersBtn">Настроить шахтёров (10 каждого)</button>
+            </div>
+        </div>
+    </div>
+    <footer>⚡ Неограниченный найм • Автосохранение • Фиолетовая премиум вселенная</footer>
 </div>
 
 <script>
     // ---------- ДАННЫЕ ШАХТЁРОВ ----------
     const minersData = [
-        { level: 1, name: "⛏️ Шахтёр Lv.1", hourly: 100, costGold: 1000, prodSec: 100 / 3600 },
-        { level: 2, name: "⛏️ Шахтёр Lv.2", hourly: 700, costGold: 5000, prodSec: 700 / 3600 },
-        { level: 3, name: "⛏️ Шахтёр Lv.3", hourly: 3500, costGold: 20000, prodSec: 3500 / 3600 },
-        { level: 4, name: "⛏️ Шахтёр Lv.4", hourly: 10500, costGold: 50000, prodSec: 10500 / 3600 },
-        { level: 5, name: "⛏️ Шахтёр Lv.5", hourly: 18000, costGold: 75000, prodSec: 18000 / 3600 },
-        { level: 6, name: "⛏️ Шахтёр Lv.6", hourly: 28000, costGold: 100000, prodSec: 28000 / 3600 },
-        { level: 7, name: "⛏️ Шахтёр Lv.7", hourly: 100000, costGold: 300000, prodSec: 100000 / 3600 }
+        { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec: 100/3600 },
+        { level:2, name:"⛏️ Шахтёр Lv.2", hourly:700, costGold:5000, prodSec: 700/3600 },
+        { level:3, name:"⛏️ Шахтёр Lv.3", hourly:3500, costGold:20000, prodSec: 3500/3600 },
+        { level:4, name:"⛏️ Шахтёр Lv.4", hourly:10500, costGold:50000, prodSec: 10500/3600 },
+        { level:5, name:"⛏️ Шахтёр Lv.5", hourly:18000, costGold:75000, prodSec: 18000/3600 },
+        { level:6, name:"⛏️ Шахтёр Lv.6", hourly:28000, costGold:100000, prodSec: 28000/3600 },
+        { level:7, name:"⛏️ Шахтёр Lv.7", hourly:100000, costGold:300000, prodSec: 100000/3600 }
     ];
 
-    // Состояние игры
-    let diamonds = 0;        // алмазы
-    let oil = 0;            // нефть
-    let gold = 1500;        // золото (стартовый капитал)
-    let bucks = 0;          // баксы (донат)
+    // Игровые ресурсы
+    let diamonds = 500;      // алмазы
+    let oil = 20;           // нефть
+    let gold = 3500;        // золото
+    let bucks = 2;          // баксы
 
-    // Какие шахтёры куплены (массив булов)
-    let boughtMiners = new Array(minersData.length).fill(false);
+    // Количество купленных шахтёров каждого уровня (неограниченно)
+    let minersCount = new Array(minersData.length).fill(0);
 
-    // Вычисляем суммарное производство в секунду
-    function getTotalProdPerSec() {
+    // Статистика для заданий
+    let totalDiamondsMined = 0;      // добыто алмазов (только от производства шахтёров)
+    let totalMinersPurchased = 0;     // всего наймов (сумма minersCount)
+    let totalExchangesDiamondToGold = 0; // сколько алмазов обменяно на золото
+    let totalCasesOpened = 0;          // кейсы открытые (кейс изначальный? но мы добавим магазин кейс?)
+    let totalOilSpentOnExchange = 0;   // нефть потраченная на баксы
+
+    // Задания (массив)
+    let quests = [
+        { id:0, desc:"Нанять 5 любых шахтёров", required:5, type:"miners_purchased", current:0, reward:{gold:200}, claimed:false },
+        { id:1, desc:"Добыть 10 000 алмазов (от шахт)", required:10000, type:"total_diamonds_mined", current:0, reward:{diamonds:500, oil:5}, claimed:false },
+        { id:2, desc:"Обменять 500 алмазов на золото", required:500, type:"exchanges_diamond_to_gold", current:0, reward:{bucks:2, gold:300}, claimed:false },
+        { id:3, desc:"Открыть 3 кейса (в магазине премиум)", required:3, type:"cases_opened", current:0, reward:{oil:20, bucks:1}, claimed:false },
+        { id:4, desc:"Нанять 2 шахтёра 5-го уровня", required:2, type:"miner_lvl5_count", current:0, reward:{bucks:3, diamonds:2000}, claimed:false },
+        { id:5, desc:"Конвертировать 100 нефти в баксы", required:100, type:"oil_to_bucks_amount", current:0, reward:{gold:1500, diamonds:2500}, claimed:false }
+    ];
+
+    let adminUnlocked = false;
+    let currentSection = "miners";
+
+    // ----- Вспомогательные функции -----
+    function totalProductionPerSec() {
         let total = 0;
-        for (let i = 0; i < minersData.length; i++) {
-            if (boughtMiners[i]) total += minersData[i].prodSec;
+        for(let i=0; i<minersData.length; i++) {
+            total += minersCount[i] * minersData[i].prodSec;
         }
         return total;
     }
 
-    // Обновление интерфейса (все цифры, кнопки, продуктивность)
+    // Обновление UI (валюты, отрисовка разделов)
     function updateUI() {
-        document.getElementById('diamondsValue').innerText = Math.floor(diamonds * 100) / 100;
-        document.getElementById('oilValue').innerText = Math.floor(oil * 100) / 100;
-        document.getElementById('goldValue').innerText = Math.floor(gold * 100) / 100;
-        document.getElementById('bucksValue').innerText = Math.floor(bucks * 100) / 100;
-        const prod = getTotalProdPerSec();
-        document.getElementById('productionPerSec').innerText = prod.toFixed(4);
+        document.getElementById('diamondsVal').innerText = Math.floor(diamonds * 100)/100;
+        document.getElementById('oilVal').innerText = Math.floor(oil * 100)/100;
+        document.getElementById('goldVal').innerText = Math.floor(gold * 100)/100;
+        document.getElementById('bucksVal').innerText = Math.floor(bucks * 100)/100;
+        document.getElementById('totalProdSec').innerText = totalProductionPerSec().toFixed(4);
 
-        // Обновляем карточки шахтёров
-        const container = document.getElementById('minersContainer');
+        if(currentSection === "miners") renderMiners();
+        if(currentSection === "shop") renderShop(currentShopTab);
+        if(currentSection === "quests") renderQuests();
+        if(currentSection === "profile") renderProfile();
+    }
+
+    function renderMiners() {
+        const container = document.getElementById('minersGrid');
+        if(!container) return;
         container.innerHTML = '';
-        for (let i = 0; i < minersData.length; i++) {
+        for(let i=0; i<minersData.length; i++) {
             const m = minersData[i];
-            const isBought = boughtMiners[i];
+            const count = minersCount[i];
             const card = document.createElement('div');
-            card.className = `miner-card ${isBought ? 'bought' : ''}`;
-            const hourlyFormatted = m.hourly.toLocaleString();
-            const prodSecFixed = m.prodSec.toFixed(5);
+            card.className = 'miner-card';
             card.innerHTML = `
-                <div class="miner-header">
-                    <span class="miner-name">${m.name}</span>
-                    <span class="miner-level">#${m.level}</span>
-                </div>
-                <div class="production-stats">
-                    <span>⏱️ В час: ${hourlyFormatted} 💎</span>
-                    <span>⚡ в сек: ${prodSecFixed}</span>
-                </div>
-                <div class="cost-gold">
-                    <span>🪙 Цена: ${m.costGold.toLocaleString()} золота</span>
+                <div style="display:flex; justify-content:space-between;"><b>${m.name}</b> <span>#${m.level}</span></div>
+                <div class="miner-stats"><span>⏱️ ${m.hourly}/час</span><span>⚡ ${m.prodSec.toFixed(5)}/сек</span></div>
+                <div>🪙 Цена: ${m.costGold} золота</div>
+                <div>📊 Кол-во: ${count}</div>
+                <div class="buy-group">
+                    <button class="buy-btn" data-level="${i}" data-amount="1">🏗️ Купить 1</button>
+                    <button class="buy-btn" data-level="${i}" data-amount="10">🎯 Купить 10</button>
                 </div>
             `;
-            const btn = document.createElement('button');
-            if (isBought) {
-                btn.innerText = '✅ УЖЕ НАНЯТ';
-                btn.disabled = true;
-                btn.classList.add('disabled-btn');
-            } else {
-                btn.innerText = `💪 НАНЯТЬ ЗА ${m.costGold} 🪙`;
-                btn.classList.add('buy-btn');
-                btn.onclick = () => buyMiner(i);
-                if (gold < m.costGold) {
-                    btn.disabled = true;
-                    btn.classList.add('disabled-btn');
-                }
-            }
-            card.appendChild(btn);
             container.appendChild(card);
         }
+        // вешаем обработчики
+        document.querySelectorAll('.buy-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const level = parseInt(btn.dataset.level);
+                const amount = parseInt(btn.dataset.amount);
+                buyMiners(level, amount);
+            });
+        });
     }
 
-    // Покупка шахтёра по индексу
-    function buyMiner(index) {
-        if (boughtMiners[index]) return;
-        const miner = minersData[index];
-        if (gold >= miner.costGold) {
-            gold -= miner.costGold;
-            boughtMiners[index] = true;
+    function buyMiners(levelIdx, qty=1) {
+        const miner = minersData[levelIdx];
+        const totalCost = miner.costGold * qty;
+        if(gold >= totalCost) {
+            gold -= totalCost;
+            minersCount[levelIdx] += qty;
+            totalMinersPurchased += qty;
+            // проверка задания на найм 5 шахтёров
+            updateQuestProgress('miners_purchased', qty);
+            if(levelIdx === 4) { // lvl5 индекс 4 (0-based)
+                updateQuestProgress('miner_lvl5_count', qty);
+            }
             saveGame();
             updateUI();
+            showToast(`Куплено ${qty} шт. ${miner.name} за ${totalCost} 🪙`);
         } else {
-            // визуальный фидбек
-            const btn = event?.target;
-            if(btn) btn.style.transform = 'scale(0.95)';
-            setTimeout(()=>{},100);
+            showToast("Не хватает золота!");
         }
     }
 
-    // ------ ОБМЕННЫЕ ФУНКЦИИ (алмазы->золото) ------
-    function convertDiamondsToGold(amountDiamonds) {
-        // курс 10 алмазов = 1 золото
-        let maxPossible = Math.floor(diamonds / 10) * 10;
-        if (amountDiamonds > maxPossible) amountDiamonds = maxPossible;
-        if (amountDiamonds <= 0) return false;
-        const earnedGold = amountDiamonds / 10;
-        diamonds -= amountDiamonds;
-        gold += earnedGold;
-        saveGame();
-        updateUI();
-        return true;
+    // --- Магазин ---
+    let currentShopTab = "normal";
+    const shopItems = {
+        normal: [
+            { name:"📦 Малый мешок алмазов", desc:"+500 💎", priceGold:200, reward:{diamonds:500} },
+            { name:"🎒 Средний мешок", desc:"+2000 💎", priceGold:700, reward:{diamonds:2000} },
+            { name:"💼 Большой мешок", desc:"+10000 💎", priceGold:3000, reward:{diamonds:10000} }
+        ],
+        oil: [
+            { name:"🛢️ Алмазный бур", desc:"+300 💎", priceOil:8, reward:{diamonds:300} },
+            { name:"🔥 Нефтяная скважина", desc:"+1500 💎", priceOil:35, reward:{diamonds:1500} },
+            { name:"⚡ Керосиновый реактор", desc:"+7000 💎", priceOil:150, reward:{diamonds:7000} }
+        ],
+        premium: [
+            { name:"💎 Кейс удачи", desc:"Алмазы (1000-3000)", priceBucks:1, rewardType:"random_diamonds", minD:1000, maxD:3000 },
+            { name:"🪙 Золотой сундук", desc:"+800 золота", priceBucks:1, reward:{gold:800} },
+            { name:"🛢️ Танкер Нефти", desc:"+120 нефти", priceBucks:2, reward:{oil:120} },
+            { name:"🎁 Мега-кейс (алмазы+нефть)", desc:"+5000💎 +30🛢️", priceBucks:3, reward:{diamonds:5000, oil:30} }
+        ]
+    };
+
+    function renderShop(tab) {
+        const container = document.getElementById('shopContent');
+        if(!container) return;
+        let items = [];
+        if(tab === 'normal') items = shopItems.normal;
+        else if(tab === 'oil') items = shopItems.oil;
+        else items = shopItems.premium;
+
+        container.innerHTML = '';
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'shop-item';
+            let priceHtml = '';
+            if(tab === 'normal') priceHtml = `🪙 ${item.priceGold} золота`;
+            else if(tab === 'oil') priceHtml = `🛢️ ${item.priceOil} нефти`;
+            else priceHtml = `💵 ${item.priceBucks} баксов`;
+            div.innerHTML = `<h3>${item.name}</h3><p>${item.desc}</p><p>💰 ${priceHtml}</p><button class="shop-item-btn" data-item='${JSON.stringify(item)}' data-tab="${tab}">Приобрести</button>`;
+            container.appendChild(div);
+        });
+        document.querySelectorAll('.shop-item-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const item = JSON.parse(btn.dataset.item);
+                const tabType = btn.dataset.tab;
+                buyShopItem(item, tabType);
+            });
+        });
     }
 
-    function convertAllDiamondsToGold() {
-        const possibleDiamonds = Math.floor(diamonds / 10) * 10;
-        if (possibleDiamonds > 0) {
-            convertDiamondsToGold(possibleDiamonds);
+    function buyShopItem(item, tab) {
+        if(tab === 'normal') {
+            if(gold >= item.priceGold) {
+                gold -= item.priceGold;
+                if(item.reward.diamonds) diamonds += item.reward.diamonds;
+                showToast(`Куплено: ${item.name}`);
+                saveGame(); updateUI();
+            } else showToast("Мало золота!");
+        } else if(tab === 'oil') {
+            if(oil >= item.priceOil) {
+                oil -= item.priceOil;
+                if(item.reward.diamonds) diamonds += item.reward.diamonds;
+                showToast(`Куплено: ${item.name}`);
+                saveGame(); updateUI();
+            } else showToast("Недостаточно нефти!");
+        } else if(tab === 'premium') {
+            if(bucks >= item.priceBucks) {
+                bucks -= item.priceBucks;
+                if(item.rewardType === "random_diamonds") {
+                    let reward = Math.floor(Math.random() * (item.maxD - item.minD + 1) + item.minD);
+                    diamonds += reward;
+                    showToast(`🎲 Кейс: +${reward} алмазов!`);
+                    totalCasesOpened++;
+                    updateQuestProgress('cases_opened', 1);
+                } else {
+                    if(item.reward.diamonds) diamonds += item.reward.diamonds;
+                    if(item.reward.gold) gold += item.reward.gold;
+                    if(item.reward.oil) oil += item.reward.oil;
+                    showToast(`Куплено: ${item.name}`);
+                    if(item.name.includes("Кейс")) { totalCasesOpened++; updateQuestProgress('cases_opened',1); }
+                }
+                saveGame(); updateUI();
+            } else showToast("Нужно больше баксов (конвертируй нефть)!");
         }
     }
 
-    // алмазы -> нефть (20 алмазов = 1 нефть)
-    function convertDiamondsToOil(amountDiamonds) {
-        let maxPossible = Math.floor(diamonds / 20) * 20;
-        if (amountDiamonds > maxPossible) amountDiamonds = maxPossible;
-        if (amountDiamonds <= 0) return false;
-        const earnedOil = amountDiamonds / 20;
-        diamonds -= amountDiamonds;
-        oil += earnedOil;
-        saveGame();
-        updateUI();
-        return true;
-    }
-
-    function convertAllDiamondsToOil() {
-        const possible = Math.floor(diamonds / 20) * 20;
-        if (possible > 0) convertDiamondsToOil(possible);
-    }
-
-    // нефть -> баксы (10 нефти = 1 бакс)
-    function convertOilToBucks(amountOil) {
-        let maxPossible = Math.floor(oil / 10) * 10;
-        if (amountOil > maxPossible) amountOil = maxPossible;
-        if (amountOil <= 0) return false;
-        const earnedBucks = amountOil / 10;
-        oil -= amountOil;
-        bucks += earnedBucks;
-        saveGame();
-        updateUI();
-        return true;
-    }
-
-    function convertAllOilToBucks() {
-        const possible = Math.floor(oil / 10) * 10;
-        if (possible > 0) convertOilToBucks(possible);
-    }
-
-    // ---------- КЕЙС: балансный, награда ----------
-    function openCase() {
-        if (bucks < 1) {
-            alert("Недостаточно баксов! Конвертируйте нефть в баксы или откройте больше кейсов позже ✨");
-            return;
+    // ---- ЗАДАНИЯ И ПРОГРЕСС ----
+    function updateQuestProgress(type, amount=1, customVal=0) {
+        for(let q of quests) {
+            if(q.claimed) continue;
+            if(type === 'miners_purchased' && q.type === 'miners_purchased') {
+                q.current = totalMinersPurchased;
+            } else if(type === 'total_diamonds_mined' && q.type === 'total_diamonds_mined') {
+                q.current = totalDiamondsMined;
+            } else if(type === 'exchanges_diamond_to_gold' && q.type === 'exchanges_diamond_to_gold') {
+                q.current = totalExchangesDiamondToGold;
+            } else if(type === 'cases_opened' && q.type === 'cases_opened') {
+                q.current = totalCasesOpened;
+            } else if(type === 'miner_lvl5_count' && q.type === 'miner_lvl5_count') {
+                q.current = minersCount[4] || 0;
+            } else if(type === 'oil_to_bucks_amount' && q.type === 'oil_to_bucks_amount') {
+                q.current = totalOilSpentOnExchange;
+            }
         }
-        bucks -= 1;
-        // балансные варианты наград
-        const r = Math.random();
-        let rewardText = "";
-        let rewardValue = 0;
-        // 40% алмазы (100-600), 25% золото (20-120), 20% нефть (10-45), 15% баксы (0.5 - 2)
-        if (r < 0.4) {   // алмазы
-            rewardValue = Math.floor(Math.random() * 501) + 100; // 100-600
-            diamonds += rewardValue;
-            rewardText = `💎 +${rewardValue} алмазов!`;
-        } else if (r < 0.65) { // золото
-            rewardValue = Math.floor(Math.random() * 101) + 20; // 20-120
-            gold += rewardValue;
-            rewardText = `🪙 +${rewardValue} золота!`;
-        } else if (r < 0.85) { // нефть
-            rewardValue = Math.floor(Math.random() * 36) + 10; // 10-45
-            oil += rewardValue;
-            rewardText = `🛢️ +${rewardValue} нефти!`;
-        } else { // баксы (донат)
-            let buckReward = (Math.random() * 1.5 + 0.5); // 0.5 - 2.0
-            buckReward = Math.round(buckReward * 10) / 10;
-            bucks += buckReward;
-            rewardText = `💵 +${buckReward} баксов!`;
-        }
-        // всплывающее уведомление (не навязчиво)
-        showToast(rewardText);
+        renderQuests();
         saveGame();
-        updateUI();
     }
 
-    // простая toast-нотификация
-    let toastTimeout;
-    function showToast(msg) {
-        let existing = document.getElementById('dynamicToast');
-        if(existing) existing.remove();
-        let toast = document.createElement('div');
-        toast.id = 'dynamicToast';
-        toast.innerText = msg;
-        toast.style.position = 'fixed';
-        toast.style.bottom = '30px';
-        toast.style.left = '50%';
-        toast.style.transform = 'translateX(-50%)';
-        toast.style.backgroundColor = '#200c35';
-        toast.style.color = '#f0dbff';
-        toast.style.padding = '12px 24px';
-        toast.style.borderRadius = '60px';
-        toast.style.fontWeight = 'bold';
-        toast.style.border = '1px solid #c77dff';
-        toast.style.backdropFilter = 'blur(12px)';
-        toast.style.zIndex = '9999';
-        toast.style.fontSize = '18px';
-        toast.style.boxShadow = '0 0 20px #c056ff';
-        document.body.appendChild(toast);
-        if(toastTimeout) clearTimeout(toastTimeout);
-        toastTimeout = setTimeout(() => {
-            if(toast) toast.remove();
-        }, 2000);
+    function renderQuests() {
+        const container = document.getElementById('questsList');
+        if(!container) return;
+        container.innerHTML = '';
+        for(let q of quests) {
+            let needed = q.required;
+            let cur = q.current;
+            let progressPercent = Math.min(100, (cur/needed)*100);
+            let claimBtn = '';
+            if(cur >= needed && !q.claimed) {
+                claimBtn = `<button class="claim-btn" data-id="${q.id}">🎁 Забрать награду</button>`;
+            } else if(q.claimed) {
+                claimBtn = `<span style="color:#aaffaa;">✅ Получено</span>`;
+            } else {
+                claimBtn = `<span>⏳ ${cur}/${needed}</span>`;
+            }
+            const div = document.createElement('div');
+            div.className = 'quest-item';
+            div.innerHTML = `
+                <div><b>${q.desc}</b><br><progress value="${cur}" max="${needed}" style="width:150px;"></progress></div>
+                <div>${claimBtn}</div>
+            `;
+            container.appendChild(div);
+        }
+        document.querySelectorAll('.claim-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                let id = parseInt(btn.dataset.id);
+                claimReward(id);
+            });
+        });
     }
 
-    // ---- Генерация алмазов в реальном времени ----
-    let lastTimestamp = Date.now();
-    let productionInterval = null;
+    function claimReward(questId) {
+        let q = quests.find(qq=>qq.id===questId);
+        if(!q || q.claimed) return;
+        if(q.current >= q.required) {
+            if(q.reward.gold) gold += q.reward.gold;
+            if(q.reward.diamonds) diamonds += q.reward.diamonds;
+            if(q.reward.oil) oil += q.reward.oil;
+            if(q.reward.bucks) bucks += q.reward.bucks;
+            q.claimed = true;
+            showToast("Награда получена!");
+            saveGame();
+            updateUI();
+            renderQuests();
+        }
+    }
 
-    function startProductionLoop() {
-        if (productionInterval) clearInterval(productionInterval);
-        productionInterval = setInterval(() => {
-            const prod = getTotalProdPerSec();
-            if (prod > 0) {
-                diamonds += prod;
-                saveGame();
+    // --- Личный кабинет ---
+    function renderProfile() {
+        const container = document.getElementById('profileStats');
+        if(!container) return;
+        let totalMiners = minersCount.reduce((a,b)=>a+b,0);
+        let prod = totalProductionPerSec();
+        container.innerHTML = `
+            <div class="stat-card">👥 Всего шахтёров: ${totalMiners}</div>
+            <div class="stat-card">⚡ Добыча в сек: ${prod.toFixed(4)} 💎</div>
+            <div class="stat-card">💎 Всего добыто алмазов: ${Math.floor(totalDiamondsMined)}</div>
+            <div class="stat-card">🎁 Открыто кейсов: ${totalCasesOpened}</div>
+            <div class="stat-card">📋 Выполнено заданий: ${quests.filter(q=>q.claimed).length}/${quests.length}</div>
+            <div class="stat-card">🪙 Потрачено золота на шахтёров: (динамика не хранится)</div>
+        `;
+    }
+
+    // --- Админ панель ---
+    function setupAdmin() {
+        document.getElementById('unlockAdminBtn').onclick = () => {
+            let pass = document.getElementById('adminPass').value;
+            if(pass === "admin2026") {
+                adminUnlocked = true;
+                document.getElementById('adminControls').style.display = 'block';
+                showToast("Админ доступ открыт");
+            } else { showToast("Неверный пароль!"); }
+        };
+        document.getElementById('giveDiamonds').onclick = () => { let val = getNum('addDiamonds'); if(val) diamonds+=val; saveGame(); updateUI(); };
+        document.getElementById('giveOil').onclick = () => { let val = getNum('addOil'); oil+=val; saveGame(); updateUI(); };
+        document.getElementById('giveGold').onclick = () => { let val = getNum('addGold'); gold+=val; saveGame(); updateUI(); };
+        document.getElementById('giveBucks').onclick = () => { let val = getNum('addBucks'); bucks+=val; saveGame(); updateUI(); };
+        document.getElementById('resetGameBtn').onclick = () => { resetFullGame(); };
+        document.getElementById('addAllMinersBtn').onclick = () => { for(let i=0;i<minersData.length;i++) minersCount[i]+=10; totalMinersPurchased+=70; saveGame(); updateUI(); showToast("Добавлено 10 каждого шахтёра"); };
+    }
+    function getNum(id) { let v = parseInt(document.getElementById(id).value); if(isNaN(v)) v=0; document.getElementById(id).value=''; return v; }
+    function resetFullGame() {
+        diamonds = 500; oil = 20; gold = 3500; bucks = 2;
+        minersCount.fill(0);
+        totalDiamondsMined = 0; totalMinersPurchased = 0; totalExchangesDiamondToGold = 0; totalCasesOpened = 0; totalOilSpentOnExchange = 0;
+        quests.forEach(q=> { q.current=0; q.claimed=false; });
+        saveGame(); updateUI(); showToast("Игра сброшена");
+    }
+
+    // ---- ОБМЕНЫ (для интеграции с заданиями) ----
+    function convertDiamondsToGold(amount) {
+        let maxTake = Math.floor(diamonds / 10)*10;
+        if(amount > maxTake) amount = maxTake;
+        if(amount<=0) return;
+        diamonds -= amount;
+        gold += amount/10;
+        totalExchangesDiamondToGold += amount;
+        updateQuestProgress('exchanges_diamond_to_gold', amount);
+        saveGame(); updateUI();
+    }
+    function convertAllDiamondsToGold() { convertDiamondsToGold(Math.floor(diamonds/10)*10); }
+    function convertDiamondsToOil(amount) { let maxTake = Math.floor(diamonds/20)*20; if(amount>maxTake) amount=maxTake; if(amount<=0)return; diamonds-=amount; oil+=amount/20; saveGame(); updateUI(); }
+    function convertAllDiamondsToOil() { convertDiamondsToOil(Math.floor(diamonds/20)*20); }
+    function convertOilToBucks(amountOil) { let maxOil = Math.floor(oil/10)*10; if(amountOil>maxOil) amountOil=maxOil; if(amountOil<=0)return; oil-=amountOil; let earn = amountOil/10; bucks+=earn; totalOilSpentOnExchange += amountOil; updateQuestProgress('oil_to_bucks_amount', amountOil); saveGame(); updateUI(); }
+    function convertAllOilToBucks() { convertOilToBucks(Math.floor(oil/10)*10); }
+
+    // интеграция обменных кнопок (добавим в шапку/быстрый доступ)
+    function addGlobalExchangeButtons() {
+        // добавим панель быстрых обменов под валюты для удобства
+        const bar = document.querySelector('.currencies-bar');
+        let exchangeDiv = document.createElement('div');
+        exchangeDiv.style.display = 'flex'; exchangeDiv.style.gap='10px'; exchangeDiv.style.flexWrap='wrap'; exchangeDiv.style.marginTop='8px';
+        exchangeDiv.innerHTML = `
+            <button class="action-btn" id="dToG">💎→🪙 (100 алмазов)</button>
+            <button class="action-btn" id="dToO">💎→🛢️ (200 алмазов)</button>
+            <button class="action-btn" id="oToB">🛢️→💵 (10 нефти)</button>
+        `;
+        bar.after(exchangeDiv);
+        document.getElementById('dToG').onclick = () => convertDiamondsToGold(100);
+        document.getElementById('dToO').onclick = () => convertDiamondsToOil(200);
+        document.getElementById('oToB').onclick = () => convertOilToBucks(10);
+    }
+
+    // ---- production loop + сохранение ---
+    let lastUpdate = Date.now();
+    function productionLoop() {
+        setInterval(() => {
+            let prod = totalProductionPerSec();
+            if(prod > 0) {
+                let added = prod;
+                diamonds += added;
+                totalDiamondsMined += added;
+                updateQuestProgress('total_diamonds_mined', added);
                 updateUI();
+                saveGame();
             }
         }, 1000);
     }
 
-    // ---- Сохранение / Загрузка (localStorage) ----
     function saveGame() {
-        const save = {
-            diamonds, oil, gold, bucks,
-            boughtMiners: boughtMiners.slice()
-        };
-        localStorage.setItem('minerGameSave', JSON.stringify(save));
+        let save = { diamonds, oil, gold, bucks, minersCount, totalDiamondsMined, totalMinersPurchased, totalExchangesDiamondToGold, totalCasesOpened, totalOilSpentOnExchange, quests };
+        localStorage.setItem('minerUnlimitedSave', JSON.stringify(save));
     }
-
     function loadGame() {
-        const raw = localStorage.getItem('minerGameSave');
-        if (raw) {
-            try {
-                const data = JSON.parse(raw);
-                diamonds = data.diamonds ?? 0;
-                oil = data.oil ?? 0;
-                gold = data.gold ?? 1500;
-                bucks = data.bucks ?? 0;
-                if (data.boughtMiners && data.boughtMiners.length === minersData.length) {
-                    boughtMiners = data.boughtMiners;
-                } else {
-                    boughtMiners.fill(false);
-                }
-            } catch(e) { console.warn(e); }
+        let raw = localStorage.getItem('minerUnlimitedSave');
+        if(raw) {
+            let d = JSON.parse(raw);
+            diamonds = d.diamonds ?? 500; oil = d.oil ?? 20; gold = d.gold ?? 3500; bucks = d.bucks ?? 2;
+            minersCount = d.minersCount || new Array(minersData.length).fill(0);
+            totalDiamondsMined = d.totalDiamondsMined || 0;
+            totalMinersPurchased = d.totalMinersPurchased || 0;
+            totalExchangesDiamondToGold = d.totalExchangesDiamondToGold || 0;
+            totalCasesOpened = d.totalCasesOpened || 0;
+            totalOilSpentOnExchange = d.totalOilSpentOnExchange || 0;
+            if(d.quests) quests = d.quests;
+            for(let q of quests) if(q.current===undefined) q.current=0;
         }
-        // если сохранения нет, даём стартовый бонус: 1 шахтёр 1 уровня? Для приятного старта, но не куплен автоматически
-        // но стартовое золото 1500 позволяет купить Lv.1 (1000 золота)
-        // Проверим, чтобы не было рассинхрона
-        if (gold < 0) gold = 500;
         updateUI();
     }
 
-    // сброс (для отладки, но необязательно, добавим секретный сброс через консоль? лучше не надо)
-    // привяжем обработчики
-    function bindEvents() {
-        document.getElementById('diamondToGold100').onclick = () => convertDiamondsToGold(100);
-        document.getElementById('diamondToGold1000').onclick = () => convertDiamondsToGold(1000);
-        document.getElementById('diamondToGoldAll').onclick = () => convertAllDiamondsToGold();
-
-        document.getElementById('diamondToOil200').onclick = () => convertDiamondsToOil(200);
-        document.getElementById('diamondToOil1000').onclick = () => convertDiamondsToOil(1000);
-        document.getElementById('diamondToOilAll').onclick = () => convertAllDiamondsToOil();
-
-        document.getElementById('oilToBucks10').onclick = () => convertOilToBucks(10);
-        document.getElementById('oilToBucks100').onclick = () => convertOilToBucks(100);
-        document.getElementById('oilToBucksAll').onclick = () => convertAllOilToBucks();
-
-        document.getElementById('openCaseBtn').onclick = () => openCase();
+    // навигация
+    function switchSection(sectionId) {
+        document.querySelectorAll('.section').forEach(sec => sec.classList.add('hidden'));
+        document.getElementById(`${sectionId}Section`).classList.remove('hidden');
+        currentSection = sectionId;
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.nav-btn[data-section="${sectionId}"]`).classList.add('active');
+        updateUI();
+    }
+    function initNav() {
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.addEventListener('click', () => switchSection(btn.dataset.section));
+        });
+        document.querySelectorAll('.shop-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.shop-tab').forEach(t=>t.classList.remove('active'));
+                tab.classList.add('active');
+                currentShopTab = tab.dataset.shopTab;
+                renderShop(currentShopTab);
+            });
+        });
     }
 
-    // Инициализация + добавим защиту от дурака (чтобы с алмазами не терялись)
-    function init() {
-        loadGame();
-        bindEvents();
-        startProductionLoop();
-        // обновить отображение и проверить кнопки после загрузки
-        setInterval(() => {
-            // дополнительная синхронизация кнопок шахтёров (если золото изменилось)
-            updateUI();
-        }, 200);
-        // Добавим стилистическую штуку: при клике на кнопки красивый эффект
+    function showToast(msg) {
+        let t = document.createElement('div'); t.className='toast-msg'; t.innerText=msg;
+        document.body.appendChild(t);
+        setTimeout(()=>t.remove(), 2000);
     }
 
-    // запуск игры
-    init();
+    loadGame();
+    productionLoop();
+    initNav();
+    setupAdmin();
+    addGlobalExchangeButtons();
+    updateUI();
 </script>
 </body>
 </html>
+```
