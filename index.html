@@ -1,4 +1,4 @@
-Мы полностью переработали интерфейс: исправили отображение всех значков валют (теперь золото отображается как 🪙 или 💰, квадраты ушли), сделали адаптивный дизайн админ-панели, добавили задания-ссылки с переходом и наградой, расширили промокоды (лимит активаций, статистика, деактивация), а также улучшили все кнопки и визуальные элементы.
+Вот полностью переработанная версия игры с исправленным отображением всех значков валют (золото теперь везде 🪙), улучшенным адаптивным дизайном админ-панели, заданиями-ссылками (переход и награда при возврате), расширенными промокодами (лимит активаций, статистика, деактивация) и красивыми кнопками.
 ```html
 <!DOCTYPE html>
 <html lang="ru">
@@ -109,7 +109,7 @@
             padding-left: 20px;
         }
 
-        /* Сетка шахтёров */
+        /* Шахтёры */
         .miners-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
@@ -120,7 +120,6 @@
             border-radius: 32px;
             padding: 18px;
             border: 1px solid #bd8aff;
-            transition: 0.1s;
         }
         .buy-group {
             display: flex;
@@ -139,7 +138,7 @@
         }
         .buy-btn:active { transform: scale(0.97); }
 
-        /* Обменная панель */
+        /* Обмен */
         .exchange-panel {
             background: #1e0d3cd9;
             border-radius: 48px;
@@ -198,7 +197,7 @@
             width: 100%;
         }
 
-        /* Магазин и боксы */
+        /* Магазин */
         .shop-tabs {
             display: flex;
             gap: 16px;
@@ -255,6 +254,16 @@
             align-items: center;
             flex-wrap: wrap;
         }
+        .quest-link-btn {
+            background: #4c3599;
+            color: white;
+            padding: 6px 14px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+        }
         /* Профиль */
         .profile-stats-grid {
             display: grid;
@@ -299,7 +308,7 @@
             font-weight: bold;
             display: inline-block;
         }
-        /* Админка - улучшенный дизайн, сетка */
+        /* Админка */
         .admin-panel-grid {
             display: flex;
             flex-direction: column;
@@ -309,7 +318,6 @@
             background: #1f0f38;
             padding: 20px;
             border-radius: 36px;
-            margin-bottom: 0;
         }
         .admin-input-group {
             display: flex;
@@ -318,15 +326,15 @@
             align-items: center;
             margin: 15px 0;
         }
-        button, .admin-input, select {
-            font-family: inherit;
-        }
         .admin-input, select {
             background: #2e1a4b;
             border: none;
             padding: 10px 16px;
             border-radius: 40px;
             color: white;
+        }
+        button, .admin-input, select {
+            font-family: inherit;
         }
         .promo-item {
             background: #2c1952;
@@ -358,17 +366,8 @@
         }
         footer {
             text-align: center;
-            font-size: 12px;
             margin-top: 20px;
             opacity: 0.7;
-        }
-        .quest-link-btn {
-            background: #4c3599;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 40px;
-            text-decoration: none;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -415,7 +414,7 @@
         <div id="shopContent" class="shop-items"></div>
     </div>
 
-    <!-- Задания (добавлены задания-ссылки) -->
+    <!-- Задания -->
     <div id="questsSection" class="section hidden"><div class="section-title">🎯 Задания</div><div id="questsContainer"></div></div>
 
     <!-- Личный кабинет -->
@@ -429,7 +428,7 @@
         <div class="stat-card" style="margin-top:12px;">⏱️ Время в игре: <span id="playtimeSpan">0</span> секунд</div>
     </div>
 
-    <!-- Админ панель (расширенная, с промокодами и статистикой) -->
+    <!-- Админ панель -->
     <div id="adminSection" class="section hidden">
         <div class="section-title">🔐 Админ-панель</div>
         <input type="password" id="adminPassInput" placeholder="Пароль" class="admin-input"><button id="adminLoginBtn">Войти</button>
@@ -439,9 +438,9 @@
                 <div class="admin-input-group"><select id="rewardCurrencySelect"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="rewardAmount" placeholder="Количество"><button id="giveCustomRewardBtn">Выдать награду</button><button id="viewStatsByIdBtn">📊 Статистика по ID</button></div>
                 <div id="adminStatsResult" style="background:#150b2a; padding:12px; border-radius:28px; margin-top:10px;"></div></div>
 
-                <div class="admin-block"><h3>📝 Задание-ссылка (переход и возврат)</h3><div class="admin-input-group"><input type="text" id="linkQuestDesc" placeholder="Описание задания" class="admin-input"><input type="text" id="linkQuestUrl" placeholder="Ссылка для перехода" class="admin-input"></div><div class="admin-input-group"><select id="linkQuestRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="linkQuestRewardAmount" placeholder="Кол-во награды"><button id="createLinkQuestBtn">➕ Создать задание-ссылку</button></div><div id="linkQuestsList" style="margin-top:12px;"></div></div>
+                <div class="admin-block"><h3>🔗 Задание-ссылка (переход → возврат → награда)</h3><div class="admin-input-group"><input type="text" id="linkQuestDesc" placeholder="Описание задания" class="admin-input"><input type="text" id="linkQuestUrl" placeholder="Ссылка для перехода" class="admin-input"></div><div class="admin-input-group"><select id="linkQuestRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="linkQuestRewardAmount" placeholder="Кол-во награды"><button id="createLinkQuestBtn">➕ Создать задание-ссылку</button></div><div id="linkQuestsList" style="margin-top:12px;"></div></div>
 
-                <div class="admin-block"><h3>🎁 Промокоды (4 валюты + лимит)</h3><div class="admin-input-group"><input type="text" id="promoCodeName" placeholder="Код"><select id="promoRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="promoRewardAmount" placeholder="Кол-во"><input type="number" id="promoMaxUses" placeholder="Лимит активаций"><button id="createPromoBtn">Создать промокод</button></div>
+                <div class="admin-block"><h3>🎁 Промокоды (с лимитом и статистикой)</h3><div class="admin-input-group"><input type="text" id="promoCodeName" placeholder="Код"><select id="promoRewardType"><option value="gold">Золото</option><option value="diamonds">Алмазы</option><option value="oil">Нефть</option><option value="bucks">Баксы</option></select><input type="number" id="promoRewardAmount" placeholder="Кол-во"><input type="number" id="promoMaxUses" placeholder="Лимит активаций"><button id="createPromoBtn">Создать промокод</button></div>
                 <div id="promoCodesList" style="margin-top: 12px;"></div></div>
             </div>
         </div>
@@ -450,7 +449,7 @@
 </div>
 
 <script>
-    // ---------------------- ГЛОБАЛЬНЫЕ ДАННЫЕ ----------------------
+    // ---------------------- ДАННЫЕ ----------------------
     let minersData = [
         { level:1, name:"⛏️ Шахтёр Lv.1", hourly:100, costGold:1000, prodSec:100/3600 },
         { level:2, name:"⛏️ Шахтёр Lv.2", hourly:700, costGold:5000, prodSec:700/3600 },
@@ -463,15 +462,15 @@
     let resources = { diamonds: 1200, oil: 60, gold: 6000, bucks: 3 };
     let minersCount = new Array(7).fill(0);
     let totalMined = 0, totalMinersPurchased = 0, totalExchangeDiamonds = 0, totalBucksSpentOnShop = 0;
-    let blockedUsers = [], promoCodes = [];  // промокоды {code, type, amount, maxUses, usedCount, active}
-    let customQuests = [];   // для простых заданий
-    let linkQuests = [];      // { id, desc, url, rewardType, rewardAmount, completed: false }
+    let blockedUsers = [], promoCodes = [];
+    let linkQuests = [];      // { id, desc, url, rewardType, rewardAmount, completed }
+    let customQuests = [];
     let myUserId = "master_miner_001";
     let currentUser = { id: myUserId, refBy: null, refEarnings: 0, referrals: [], joinTime: Date.now() };
     let isBlocked = false;
     let allUsers = {};
 
-    // квестовые шаблоны (10 уровней)
+    // Квестовые шаблоны (10 уровней)
     let questTemplates = {
         mine: { name: "Добыча алмазов", baseReq: 100, multiplier: 2, currentLevel: 0, claimedLevels: [], rewardGoldBase: 200, type:"diamonds_mined" },
         miners: { name: "Наём шахтёров", baseReq: 3, multiplier: 1.8, currentLevel: 0, claimedLevels: [], rewardGoldBase: 300, type:"miners_bought" },
@@ -479,7 +478,6 @@
     };
     let premiumQuests = [ { name: "Премиум: Траты баксов", baseReq: 1, multiplier: 1.5, currentLevel: 0, claimedLevels: [], rewardGoldBase: 400, type:"bucks_spent" } ];
 
-    // Сохранение / загрузка
     function saveGame() {
         let data = { resources, minersCount, totalMined, totalMinersPurchased, totalExchangeDiamonds, totalBucksSpentOnShop, questTemplates, premiumQuests, customQuests, linkQuests, promoCodes, currentUser, blockedUsers, allUsers };
         localStorage.setItem('minerEmpireFull', JSON.stringify(data));
@@ -500,11 +498,10 @@
         if(!currentUser.joinTime) currentUser.joinTime = Date.now();
         if(!allUsers[myUserId]) allUsers[myUserId] = currentUser;
         updateUI();
-        checkPendingLinkQuest(); // при загрузке проверяем, не вернулись ли с задания
+        checkPendingLinkQuest();
     }
     function getPlaytimeSeconds() { return Math.floor((Date.now() - (currentUser.joinTime||Date.now())) / 1000); }
 
-    // Обновление квестов (прогресс)
     function updateQuestsByType(type, value) {
         let allQ = [...Object.values(questTemplates), ...premiumQuests, ...customQuests];
         for(let q of allQ) {
@@ -531,7 +528,7 @@
     function exchangeDiamondToGold(amt) { let use = Math.min(amt, Math.floor(resources.diamonds)); let goldGet = Math.floor(use/100); if(goldGet>0) { resources.diamonds -= use; resources.gold += goldGet; totalExchangeDiamonds += use; updateQuestsByType('exchange_diamonds', use); saveGame(); updateUI(); showToast(`Обмен ${use}💎 → +${goldGet}🪙`); } else showToast("Минимум 100 алмазов"); }
     function exchangeBucksToOil(amt) { let use = Math.min(amt, Math.floor(resources.bucks)); if(use>0) { resources.bucks -= use; resources.oil += use; saveGame(); updateUI(); showToast(`+${use}🛢️`); } }
 
-    // Магазин и боксы
+    // Магазин
     let shopData = {
         normal: [{name:"📦 Мешок алмазов", desc:"+400💎", priceGold:300, reward:{diamonds:400}}, {name:"💰 Куча золота", desc:"+1500🪙", priceGold:800, reward:{gold:1500}}],
         oil: [{name:"🛢️ Нефтяной конверт", desc:"+1000💎", priceOil:20, reward:{diamonds:1000}}],
@@ -551,7 +548,7 @@
     function generateRefLink() { return window.location.origin+window.location.pathname+"?ref="+myUserId; }
     function processRef() { let params=new URLSearchParams(location.search); let refId=params.get('ref'); if(refId && refId!==myUserId && !currentUser.refBy) { currentUser.refBy=refId; if(allUsers[refId]) { if(!allUsers[refId].referrals.includes(myUserId)) allUsers[refId].referrals.push(myUserId); resources.gold+=5000; showToast("+5000 золота за переход!"); } saveGame(); updateUI(); } }
 
-    // Задания-ссылки: создание, выполнение, проверка возврата
+    // Задания-ссылки
     function createLinkQuest(desc, url, rewardType, rewardAmount) {
         let id = Date.now();
         linkQuests.push({ id, desc, url, rewardType, rewardAmount, completed: false });
@@ -561,13 +558,9 @@
     }
     function renderLinkQuests() {
         let container = document.getElementById('linkQuestsList');
-        if(!container) return;
-        container.innerHTML = linkQuests.map(q => `<div class="promo-item"><span>🔗 ${q.desc} → ${q.url}</span><span>Награда: ${q.rewardAmount} ${q.rewardType}</span><button class="max-btn" data-linkid="${q.id}" style="background:#d45353;">Удалить</button></div>`).join('');
-        document.querySelectorAll('[data-linkid]').forEach(btn => {
-            btn.addEventListener('click', () => { linkQuests = linkQuests.filter(l => l.id != btn.dataset.linkid); saveGame(); renderLinkQuests(); });
-        });
+        if(container) container.innerHTML = linkQuests.map(q => `<div class="promo-item"><span>🔗 ${q.desc} → ${q.url}</span><span>Награда: ${q.rewardAmount} ${q.rewardType}</span><button class="max-btn" data-linkid="${q.id}" style="background:#d45353;">Удалить</button></div>`).join('');
+        document.querySelectorAll('[data-linkid]').forEach(btn => { btn.addEventListener('click', () => { linkQuests = linkQuests.filter(l => l.id != btn.dataset.linkid); saveGame(); renderLinkQuests(); }); });
     }
-    // Проверка при возврате в игру (по localStorage флагу)
     function startLinkQuest(questId) {
         let quest = linkQuests.find(q => q.id == questId);
         if(quest && !quest.completed) {
@@ -580,8 +573,7 @@
         if(pending) {
             let data = JSON.parse(pending);
             let quest = linkQuests.find(q => q.id == data.id);
-            if(quest && !quest.completed && (Date.now() - data.startTime) > 3000) { // защита от мгновенного возврата
-                // выдаём награду
+            if(quest && !quest.completed && (Date.now() - data.startTime) > 2000) {
                 let rewardType = quest.rewardType, amount = quest.rewardAmount;
                 if(rewardType === 'gold') resources.gold += amount;
                 else if(rewardType === 'diamonds') resources.diamonds += amount;
@@ -595,7 +587,7 @@
         }
     }
 
-    // Промокоды с лимитом, статистикой, деактивацией
+    // Промокоды
     function createPromo(code, type, amount, maxUses) {
         promoCodes.push({ code, type, amount, maxUses: maxUses || 1, usedCount: 0, active: true });
         saveGame(); renderPromoCodes(); showToast(`Промокод ${code} создан`);
@@ -616,8 +608,7 @@
     function deactivatePromo(code) { let p = promoCodes.find(p=>p.code===code); if(p) p.active=false; saveGame(); renderPromoCodes(); }
     function renderPromoCodes() {
         let container = document.getElementById('promoCodesList');
-        if(!container) return;
-        container.innerHTML = promoCodes.map(p => `<div class="promo-item"><span>📢 ${p.code} | ${p.type} ${p.amount} | Лимит: ${p.usedCount}/${p.maxUses} | ${p.active ? '✅ Активен' : '❌ Неактивен'}</span><button class="max-btn" data-promocode="${p.code}" style="background:#a53030;">Закрыть</button></div>`).join('');
+        if(container) container.innerHTML = promoCodes.map(p => `<div class="promo-item"><span>📢 ${p.code} | ${p.type} ${p.amount} | Активаций: ${p.usedCount}/${p.maxUses} | ${p.active ? '✅ Активен' : '❌ Неактивен'}</span><button class="max-btn" data-promocode="${p.code}" style="background:#a53030;">Закрыть</button></div>`).join('');
         document.querySelectorAll('[data-promocode]').forEach(btn => { btn.addEventListener('click',()=>{ deactivatePromo(btn.dataset.promocode); }); });
     }
 
@@ -631,13 +622,12 @@
         if(!user) { document.getElementById('adminStatsResult').innerHTML = `❌ Пользователь ${uid} не найден`; return; }
         let minersCountUser = (uid===myUserId)? minersCount : (allUsers[uid]?.minersCount || [0,0,0,0,0,0,0]);
         let totalProdHour = 0, totalProdSec = 0;
-        if(minersCountUser) for(let i=0;i<7;i++) { totalProdHour += minersCountUser[i]*minersData[i].hourly; totalProdSec += minersCountUser[i]*minersData[i].prodSec; }
+        for(let i=0;i<7;i++) { totalProdHour += minersCountUser[i]*minersData[i].hourly; totalProdSec += minersCountUser[i]*minersData[i].prodSec; }
         let playtime = user.joinTime ? Math.floor((Date.now()-user.joinTime)/1000) : 0;
-        let html = `<b>📊 Статистика ${uid}</b><br>👥 Рефералов: ${user.referrals?.length||0}<br>⛏️ Шахтёры: ${minersCountUser.map((c,i)=>`Lv${i+1}:${c}`).join(', ')}<br>💰 Доход в час: ~${totalProdHour.toFixed(0)}💎 | в сек: ${totalProdSec.toFixed(4)}💎<br>⏱️ В игре: ${playtime} сек.`;
-        document.getElementById('adminStatsResult').innerHTML = html;
+        document.getElementById('adminStatsResult').innerHTML = `<b>📊 Статистика ${uid}</b><br>👥 Рефералов: ${user.referrals?.length||0}<br>⛏️ Шахтёры: ${minersCountUser.map((c,i)=>`Lv${i+1}:${c}`).join(', ')}<br>💰 Доход в час: ~${totalProdHour.toFixed(0)}💎 | в сек: ${totalProdSec.toFixed(4)}💎<br>⏱️ В игре: ${playtime} сек.`;
     }
 
-    // Отрисовка UI
+    // UI
     let currentShopTab = "normal";
     function updateUI() {
         document.getElementById('diamondsVal').innerText = Math.floor(resources.diamonds);
@@ -648,12 +638,12 @@
         renderMiners(); renderShop(currentShopTab); renderQuests(); renderProfile();
         document.getElementById('playtimeSpan').innerText = getPlaytimeSeconds();
     }
-    function renderMiners() { let cont=document.getElementById('minersGrid'); if(!cont) return; cont.innerHTML=''; for(let i=0;i<7;i++){ let m=minersData[i]; let div=document.createElement('div'); div.className='miner-card'; div.innerHTML=`<div><b>${m.name}</b> lvl${m.level}</div><div>⚡ ${m.prodSec.toFixed(5)}/сек</div><div>🪙 ${m.costGold}</div><div>Кол-во: ${minersCount[i]}</div><div class="buy-group"><button class="buy-btn" data-lvl="${i}" data-qty="1">+1</button><button class="buy-btn" data-lvl="${i}" data-qty="10">+10</button></div>`; cont.appendChild(div); } document.querySelectorAll('.buy-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let lvl=parseInt(btn.dataset.lvl); let qty=parseInt(btn.dataset.qty); buyMiner(lvl,qty); }); }); }
+    function renderMiners() { let cont=document.getElementById('minersGrid'); if(!cont) return; cont.innerHTML=''; for(let i=0;i<7;i++){ let m=minersData[i]; cont.innerHTML+=`<div class="miner-card"><div><b>${m.name}</b> lvl${m.level}</div><div>⚡ ${m.prodSec.toFixed(5)}/сек</div><div>🪙 ${m.costGold}</div><div>Кол-во: ${minersCount[i]}</div><div class="buy-group"><button class="buy-btn" data-lvl="${i}" data-qty="1">+1</button><button class="buy-btn" data-lvl="${i}" data-qty="10">+10</button></div></div>`; } document.querySelectorAll('.buy-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let lvl=parseInt(btn.dataset.lvl); let qty=parseInt(btn.dataset.qty); buyMiner(lvl,qty); }); }); }
     function renderShop(tab) { let container=document.getElementById('shopContent'); let items=shopData[tab]; if(!items) return; container.innerHTML=items.map(item=>`<div class="shop-item"><h3>${item.name}</h3><p>${item.desc}</p><p>Цена: ${item.priceBucks?item.priceBucks+'💵':item.priceGold?item.priceGold+'🪙':item.priceOil?item.priceOil+'🛢️':''}</p><button class="shop-buy" data-item='${JSON.stringify(item)}' data-tab="${tab}">Купить</button></div>`).join(''); document.querySelectorAll('.shop-buy').forEach(btn=>{ btn.addEventListener('click',()=>{ let it=JSON.parse(btn.dataset.item); buyShopItem(it,btn.dataset.tab); }); }); }
     function renderQuests() { let cont=document.getElementById('questsContainer'); if(!cont) return; let html=`<div class="quest-category"><h3>✨ Премиум задания</h3><div class="quest-levels">`; for(let q of premiumQuests) html+=getQuestHtml(q); html+=`</div></div><div class="quest-category"><h3>📖 Сюжетные задания</h3><div class="quest-levels">`; for(let q of Object.values(questTemplates)) html+=getQuestHtml(q); if(customQuests.length) html+=`<div class="quest-category"><h3>⚡ Событийные</h3><div class="quest-levels">`+customQuests.map(q=>getQuestHtml(q)).join('')+`</div></div>`; html+=`<div class="quest-category"><h3>🔗 Задания-ссылки</h3><div class="quest-levels">`+linkQuests.map(q=>`<div class="quest-line"><div><b>${q.desc}</b><br>Перейти по ссылке и вернуться</div><button class="quest-link-btn" data-linkid="${q.id}">Выполнить</button></div>`).join('')+`</div></div>`; cont.innerHTML=html; document.querySelectorAll('.quest-link-btn').forEach(btn=>{ btn.addEventListener('click',()=>{ let id=parseInt(btn.dataset.linkid); startLinkQuest(id); }); }); function getQuestHtml(q){ let need=Math.floor(q.baseReq*Math.pow(q.multiplier, q.currentLevel)); let progress=(q.type==='diamonds_mined')?totalMined:(q.type==='miners_bought')?totalMinersPurchased:(q.type==='exchange_diamonds')?totalExchangeDiamonds:(q.type==='bucks_spent')?totalBucksSpentOnShop:(q.customProgress||0); let completed=q.claimedLevels?.length||0; return `<div class="quest-line"><div><b>${q.name}</b> (${completed}/10)<br>${progress}/${need}<progress value="${progress}" max="${need}"></progress></div><div>${q.currentLevel<10?`+${q.rewardGoldBase*(q.currentLevel+1)}🪙`:'✅ завершено'}</div></div>`; } }
     function renderProfile() { document.getElementById('profileStats').innerHTML = `<div class="stat-card">🆔 ID: ${myUserId}</div><div class="stat-card">⛏️ Всего шахтёров: ${minersCount.reduce((a,b)=>a+b,0)}</div><div class="stat-card">💎 Добыто алмазов: ${Math.floor(totalMined)}</div><div class="stat-card">🎁 Реф. заработок: ${currentUser.refEarnings.toFixed(2)} баксов</div>`; document.getElementById('refLinkInput').value=generateRefLink(); document.getElementById('refStatText').innerText = `Приглашено: ${currentUser.referrals.length} | Бонус 5% от трат: ${currentUser.refEarnings.toFixed(2)}💵`; document.getElementById('referralsList').innerHTML = currentUser.referrals.map(id=>`<div>👤 ${id}</div>`).join(''); }
 
-    // Инициализация событий
+    // События
     function bindEvents() {
         document.getElementById('maxDiamonds').onclick=()=>{ document.getElementById('diamondAmount').value=Math.floor(resources.diamonds); };
         document.getElementById('maxBucks').onclick=()=>{ document.getElementById('bucksAmount').value=Math.floor(resources.bucks); };
